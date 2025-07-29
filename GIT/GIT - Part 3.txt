@@ -1,0 +1,141 @@
+Git Part -3
+
+	Git Diff -- used to view changes between commits, branches, files, working directory and more; we often use git diff alongside commands like git status and git log, to get a better picture of a repository and how it has changed over time. 
+
+1. Create a new directory (mkdir diff) - go inside the directory (cd diff)
+
+2. Initialize git (git init)
+
+3. create a file (vi sample) - add some lines 
+
+4. add and commit (git add .) - (git commit -m "new commit")
+
+5. check the logs (git log --oneline)
+
+6. change the file once again, before adding to stage, now call (git diff), and this is going to show the detailed changes that has been done
+
+7. add the file now to staging area, and to see the changed inbetween staging area to commit, we need to call the command (git diff --staged)
+
+[Diff won't show the entire contents of a file, but instead only shows portions or "chunks" that were modified.; A chunk also includes some unchanged lies before and after a change to provide some content]
+
+8. [make sure to commit the previous one before this step] compare in between 2 different commits -- change the file once again, try to remove line and updated new lines, then add (git add .) - commit (git commit -m "newone") - now try to compare the last commit with this one (git diff commit2id..commit3id) [example: git diff 5e1fe79..d887f6c] - this shows the difference inbetween 2 commits.
+
+	Git stash -- used where we don't want to commit the changes right now but would like to switch to something else, [in other words, stashing is an easy way where changes that are not committed, and we can return to them later, without having any unncessary commits]
+	This is a super useful command that helps you save changes taht you are not yet ready to commit. You can stash changes and then come back to them later. Running "git stash" will take all uncommitted changes (staged and unstaged) and stash them, reverting the changes in your working copy. 
+	git stash pop -- used to remove the most recently stashed changes in your stash and re-apply them to your working copy. 
+
+9. create a directory (mkdir stash) - go inside the directory (cd stash)
+
+10. initialize git (git init)
+
+11. create a file (vi stashfile) - add somthing - add (git add .) - and commit (git commit -m "initial commit") [ this will work only after 1st commit done
+
+12. now open the file and change something - then try to stash (git stash), now if we are going to call (git status) it will not show anything as this one got saved;  to get this file (git stash pop), then we will be able to get the files in our status.
+[this stash can be done, when our file either in working directory or in staging area, but make sure to "add" the file once again stash pop otherwise we will not be able to commit]
+
+[Task: try to create a feature branch, edit the file - stash; come back to master; do some changes - go inside feature branch, check the status, then stash pop, add and commit; and merge the same with master branch for same commits]
+
+	git stash apply - can be used to apply whatever is stashed away, without removing it from the stash. This can be useful if you want to apply stashed changes to multiple branches; in simple words this works same like stash pop, but stash pop will bring the changes and it wont have it; but when we are trying with stash apply this will bing the changes but still it is going to have a copy within them. 
+
+13. come back to feature branch [if you don't have one create it] - do some changes on the file, then stash (git stash)
+
+14. now switch to master branch (git switch master), now give the command (git stash apply), as you can see the changes did on the feature will be applied here after adding and committing (git commit -am "chagnes dones for stashing), check the logs (git log --oneline)
+
+15. switch to feature branch (git switch feature) - again call for (git stash apply) as we can see the same changes comes to multiple branches - now add and commit here also (git commit -am "checking stashing"), check the logs (git log --oneline)
+
+16. now switch to master branch, merge the feature (git merge feature) - it will take to the editor - [esc:wq!] -  [we will receive a msg like Merge made by the 'ort' stratery] - check the logs (git log --oneline)
+
+17. come to feature branch (git switch feature), check for the logs (git log --oneline) as we can see the logs was not same - hence rebase the master to avoid future conflicts (git rebase master) - then check for the logs to confirm the same (git log --oneline)
+
+["ort" stratery = (Ostensibly Recursive Three-Way / Octopus-Resolve-Thirteen/Ostensibly Recursive Twin) merge strategy,  that tries to resolve multiple heads (branches) in a single merge operation. 
+Imagine you have a situation where you're working on a project with multiple branches, and you want to merge them together. Normally, when you merge branches in Git, you do it one branch at a time. However, with the ORT strategy, you can merge multiple branches at once.
+
+Here's how it works:
+
+- You have multiple branches that you want to merge, let's say Branch A, Branch B, and Branch C.
+- Instead of merging each branch individually, you can use the ORT strategy to merge all three branches simultaneously.
+- Git will analyze the changes in all three branches and try to merge them together in one go.
+- If there are conflicts (i.e., changes in different branches that cannot be automatically merged), Git will pause the merge process and ask you to resolve these conflicts manually.
+- Once conflicts are resolved, Git will complete the merge operation, incorporating changes from all the branches into the target branch.
+	
+	In simple words, the ORT strategy allows you to merge multiple branches together in a single merge operation, making it convenient when dealing with complex merge scenarios involving multiple branches.
+
+18. to delete/clear the stash we need to 1st list (git stash list) - then we need to give (git stash drop (stash id)) - [ex: git stash drop stash@{0}], check the list again to confirm the same (git stash list)
+
+[if we have multiple stashes, and to clear everything in one shot, we can call (git stash clear)]
+
+	Git restore = suppose you've made changes to a file and saved it, and then you realize you don't want that changes anymore, then git restore comes to picture. 
+
+19. create a directory (mkdir restore) - go inside the directory (cd restore)
+
+20. initialize git (git init)
+
+21. create a file (vi file1) - add somthing - add (git add .) - and commit (git commit -m "1st commit") 
+
+22. open the file again (vi file1) - do some changes and save it - now to restore give (git restore file1), this will restore the file to the previous committed content.
+[this will work only if the commits are not made, but what if we need to move to the specific commit]
+
+	Un-staging changes with Git Restore = where you mistakenly added a file in staging area along with some other files, now we need to remove specific file from that lists
+
+23. add something on the file (vi file1) - check the status (git status)  - then add the file to staging ares (git add .) - we can use command (git restore --staged <filename that need to be removed>) - open the existing files and do some changes (vi file1) - then create another new file (vi newfile), add the data - then add these file (git add .), check the status (git status) 2 files were staged
+
+24. to remove the file which is not required from staging (git restore --staged newfile), then check the status now we can see the file got unstaged. [but the file won't get deleted, so whenever there is a requirement, we can add them]
+
+	Git reset = suppose you've made 2 commits on master instead of doing it separately on a different branch, to do this we can use reset command, this command will reset the repo back to a specific commit.
+	We do have 2 different reset here (regular & hard)
+
+In regular reset, it removes the commit, but it doesn't removes the changes from the working directory, so that we don't lose that work, (command: git reset <commit id>)
+In hard reset, it removes the commit as well as the changes are removed from the working directory (git reset --hard <commitid>)
+
+25. create a directory (mkdir reset) - go inside the directory (cd reset)
+
+26. initialize git (git init)
+
+27. create 2 files (vi cat.txt) (vi dog.txt)- add & delete some lines - check the status (git status) add (git add .) - and commit (git commit -m "1st commit") [do some 4 commits]
+
+28. now to remove the wrong commit, get the commit logs (git log --oneline) (git reset <commit id>) [ex: git reset 48916ac], now we are going to check the log once again we can see the further commites after the one which we mentioned got rid of, why so? because according to git, it is going to stop the commit where are mentioning.
+
+29. now to move this to the right branch, in our case create one branch (git switch -c newfeature) - confirm the same (git branch) - where we need this commits, check the status (git status), and it will show some files needs to be tracked, so add to the staging area (git add .), then commit on the correct branch (git commit -m "correct one")
+
+30. for hard resst, come to master branch (git branch master) - change something on the files (vi cat.txt) (vi dog.txt)
+
+31. now add and commit (git add .) (git commit -m "changes made"), confirm the same on log (git log --oneline)
+
+32. let's hard reset (git reset --hard <commit id>), check the files also to confirm the same (cat cat.txt) (cat dog.txt)
+
+	Git revert = this may be similar with reset, as they both "undo" changes, but they accomplish in a different ways. Git reset actually moves the branch pointer backwards eliminating commits; but Git revert instead creates a brand new commit which reverses/undo the changes from a commit, and this results in a new commit, where will be prompted to give a commit message. [in simple we keep a record of the commit, at the same time we can get a new one]
+
+33. create a directory (mkdir revert) - go inside the directory (cd revert)
+
+34. initialize git (git init)
+
+35. open the files and do some changes (vi cat.txt) (vi dog.txt) [make sure you are in master branch for practice purpose]
+
+36. add and commit (git status) - (git add .) - (git commit -m "bad commit"), check the logs (git log --oneline)
+
+37. give the command (git revert <commit id>) [ex: git revert ff6017b] - this opens up the editor - [we can put a msg here on the 1st line where it says [Revert "________"] why we are reverting] but we are just going to clost the editor (esc:wq!)
+
+38. now check for the log where we will get a confirmation of the new commit (git log --oneline), as we can see the old commit and the reverted one comes at the top.
+
+Which one should I use?
+	Both reset and revert helps us reverse changes, but there is a significant difference when it comes to collaboration.
+	If you want to reverse some commits that other people already have on their machines, you should use revert
+	If you want to reverse commits that you haven't shared with others, use reset an no one will ever know.
+
+[Points to remember: there are times where reverting will leads to conflicts when we are trying to merge with others, where we need to proceed with our mergetool, rebase etc.,]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

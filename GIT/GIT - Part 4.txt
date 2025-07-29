@@ -1,0 +1,179 @@
+GIT - Part 4
+
+	Git fork = this allows to create personal copies of other people's repositories. We call those copies a "fork" of the original; when we fork a repo, we're basically asking github "Make me my own copy of this repo please". [Points to remember: forking is not a Git feture. This ability to fork is implemented by GitHub]
+
+1. search for any repository on GitHub (ex: Automatic-Udemy-Course-Enroller-GET-PAID-UDEMY-COURSES-for-FREE) - right hand side we can see the fork button - it is going to create a new fork (we can use the same name or we can rename according to our requirement) 
+	{once after this we can do anything with this code, like delete branches, o changes on the code, like we can completely break the entire code; basiclly this is my repo now based upon the original}
+
+	Difference between clone and fork
+		If we are going to clone a repository and make changes and made some commits, we can push those unless we are going to be contributor with necessary permissions for that specific repository; 
+		If we want to make our own changes and push them up to github and we can share them with others, all these are possible if we are going to fork the repository; once we took a fork of an repository this is like our own copy and we can do anything we that code, bring different permissions, add collaboraters etc.,
+
+	Reflogs = Git keeps a record of when the tips of branches and other references were updated in the repo; we acn view and update these reference logs using the git reflog command.  [reference + logs = reflogs], we can find this logs inside (.git) folder; and this is readable file (no compressions or binary) simple to understand what actually happened so far; 
+
+2. Create a directory (mkdir reflogs), go inside the directory (cd reflogs)
+
+3. initialize git (git init)
+
+4. crete a file and edit something (vi sample)
+
+5. add and commit the file (git add .) (git commit -m "sample")
+
+6. create and checkout to a feature branch (git switch -c feature)
+
+7. confirm the same (git branch)
+
+8. edit the file (vi sample), add and commit (git add .) (git commit -m "changes")
+
+9. check the logs (git log --oneline)
+
+10. checkout to master (git switch master)
+
+11. merge the feature branch with master (git merge feature)
+
+12. check the logs here (git log --oneline)
+
+13. now list the hidden .git file and go inside that one (ls -a) (cd .git)
+
+14. list again and go inside logs (ll) (cd logs)
+
+15. list and open the HEAD file (ll) (cat HEAD) - there we can all the logs that was collected by git which can be referred later
+
+Limitations of Reflogs:
+	This only keeps reflogs on your local activity. They arae not shared with collaborators. And Reflogs do expire; where Git cleans out old entries after 90 days, though this can be configured. 
+
+Reflogs Commands:
+	The git reflog command accepts subcommands like (show, expire, delete, and exists), where "show" is the only commonly used variant, and it is the default subcommand; this command will show the log of a specific reference.
+(ex: git reflog show HEAD) where this will filter and show the logs where "HEAD" arrived.
+
+	Git squashing= refers to combining multiple commits into a single commit. This is often done to clean up the commit history, making it easier to understand and review. 
+	Let's imagine you're working on a project, and every time you make a small change or fix something, you create a new "checkpoint" called a commit. Sometimes, you end up with lots of these checkpoints, even for small changes. Squashing commits is like taking several of these checkpoints and combining them into a single big checkpoint. It's like cleaning up your workspace so that instead of having lots of small post-it notes, you have one big note that summarizes everything you did. This makes it easier for others (or even ourself) to understand what happened in the project. It's like telling a story in a mroe organized and concise way.
+
+16. Create a directory (mkdir squash), go inside the directory (cd squash)
+
+17. initialize git (git init)
+
+18. crete a file and edit something (vi test)
+
+19. add and commit the file (git add .) (git commit -m "1st commit") [edit the file for 4 times and do 4 commits for the same]
+
+20. now check for the log (git log --oneline) [as we can see 4 commits there, now we are going to make everything into 1]
+
+21. we need to open the interactive rebase editor (git rebase -i HEAD~3) [make sure to change the number according to the number of commits, as always it start with (0) number from top]
+
+22. this opens the editor, now go to insert mode (i), change the word (pick to squash) from the 2nd one; don't change the 1st one as it is the base commit, once changed save and close (esc:wq!), once again try to save this once again (esc:wq!)
+
+23. then check the logs to confirm the same (git log)
+
+	Git tagging = is like putting a static pointer on a specific commit. It's a way to mark certain points in your project's history as important or significant. 
+
+24. to create a tag give command (git tag <tag name>) [ex: git tag projectv1.0]
+
+25. to get the list of tags give (git tag)
+
+26. now to check inside the tag, give command (git show <tag name>) [ex: git show projectv1.0] and this shows the tag that we specified for the specific one
+
+27. now try to create a new file (echo "Hello, Git tags" > new-file.txt), list to confirm the same (ls -la)
+
+28. now add and commit the file (git add .) (git commit -m "new file added")
+
+29. call log to confirm the same (git log), as we can see there are 2 commits on the list; but we can see the tag actually points only to the previous one and not to the latest commit; this is why we are calling them as a pointer
+
+	Git amend = command used to modify the most recent commit, this allows you to make changes to the commit message or add additional changes to the commit before finalizing it.
+
+30. Create a directory (mkdir amend), go inside the directory (cd amend)
+
+31. initialize git (git init)
+
+32. crete a file and edit something (vi file1)
+
+33. add and commit the file (git add .) (git commit -m "new commit")
+
+34. let's consider we forgot to include a file or made a mistake in the commit message, now add a new file (vi file2), save
+
+35. add the necessary file (git add file2)
+
+36. let's try to amend now (git commit --amend) - this opens the text editor with the previous commit message - we can edit the message i needed or keep it unchanged. we can also include the missing file or make any other changes, now save and close the editor (esc:wq!)
+
+37. now check the log, this comes with the new committed msg (git log --oneline)
+
+	Git blob = (binary large object) is the fundamental object type used to store the contents of files. When you make changes to files in your Git repository and commit those changes, Git creates a blob object for each version of each file.
+
+Here's how blobs work in Git:
+	Creation: When you add a file to your Git repository or make changes to an existing file and then stage those changes for commit, Git creates a blob object to represent the content of that file. The blob contains the exact contents of the file at that particular moment.
+	Hashing: Git calculates a unique SHA-1 hash for each blob based on its content. This hash serves as the identifier for the blob. If the content of a file changes, even by just one character, Git will create a new blob with a different hash.
+	Storage: Blobs are stored in the Git object database, which is located in the .git directory of your repository. Each blob is stored as a separate file, with the filename being its SHA-1 hash.
+	Efficiency: Git stores blobs using a content-addressable mechanism, meaning that identical content will be stored only once. If multiple files in your repository have the same content, they will share the same blob object. This helps Git conserve space and improves efficiency.
+	Immutable: Blobs in Git are immutable, meaning that once a blob is created, its content cannot be changed. If you modify a file and commit the changes, Git will create a new blob for the modified content rather than modifying the existing blob. This preserves the integrity of previous commits.
+	Referencing: Blobs are referenced by tree objects, which represent the directory structure of your repository, and by commit objects, which represent individual commits. Trees reference blobs by their SHA-1 hashes, allowing Git to reconstruct the files in your repository at any point in history.
+
+38. Create a directory (mkdir blob), go inside the directory (cd blob)
+
+39. initialize git (git init)
+
+40. crete a file and edit something (vi blfile)
+
+41. add and commit the file (git add .) (git commit -m "new commit")
+
+42. now to view the blobs, use this commands (git cat-file -p master^{tree}), as we can see the blob id's for reference purpose
+
+43. now update the file (vi blfile), add & commit (git add .) (git commit -m "updated")
+
+44. to see the changes happened, call the command once again (git cat-file -p master^{tree}), as we see the blob id was changed.
+
+	Git worktrees = allow you to have multiple working directories for the same repository, each with its own branch. This means you can work on different branches simultaneously without switching between them in a single working directory. Worktrees provide a convenient way to work on multiple tasks or features concurrently without the need to create separate clones of the repository.
+
+45. Create a directory (mkdir my-project), go inside the directory (cd my-project)
+
+39. initialize git (git init)
+
+40. crete a file and edit something (vi myfile)
+
+41. add and commit the file (git add .) (git commit -m "new commit")
+
+42. create a new feature branch (git checkout -b feature-branch)
+
+43. now make some changes on the file (vi myfile) - add & commit (git add .) (git commit -m "changes done")
+
+44. now create a worktree for the feature branch (git worktree add ../feature-worktree)
+
+45. go inside the worktree branch (cd ../feature-worktree)
+
+46. check the branch (git branch) and make further changes (vi myfile) - add & commit (git add .) (git commit -m "further changes done")
+
+47. switch back to the main worktree (cd ../my-project)
+
+48. verify changes in main worktree (cat myfile)
+
+49. list the worktrees (git worktree list)
+
+50. remove the worktree once done (git worktree remove ../feature-worktree)
+
+	Git gc = stands for "Git Garbage Collector." It's a maintenance command in Git that optimizes and cleans up unnecessary files and objects in the Git repository to save disk space and improve performance.
+
+Here's how it works:
+	Object Database: Git stores all the data related to your repository (commits, trees, blobs, etc.) in a compressed format in the .git directory.
+	Object Creation: Every time you commit changes or perform certain operations in Git, new objects are created in the object database.
+	Object Deletion and Unreachable Objects: When you delete branches, tags, or commits, or rebase commits, Git doesn't immediately delete the associated objects. Instead, it marks them as "unreachable" because there are no references pointing to them.
+	Garbage Collection: The git gc command runs periodically or manually. It's responsible for cleaning up these unreachable objects and optimizing the object database.
+	Cleaning Process: During garbage collection, Git performs several tasks:
+		It removes unreachable objects that are no longer needed.
+		It packs loose objects into packfiles, which are more space-efficient.
+		It performs other optimizations to improve repository performance, such as delta compression.
+	Impact: Garbage collection doesn't change the history or contents of your repository. It only cleans up unnecessary files and objects.
+	Automatic Execution: Git automatically runs garbage collection when certain conditions are met, such as when there are too many loose objects or when you run certain commands like git push.
+	Manual Execution: You can also run garbage collection manually using the git gc command. You might do this if you want to free up disk space immediately or if you suspect your repository is bloated.
+
+		Overall, git gc helps keep your Git repository clean and efficient by removing unnecessary objects and optimizing storage. It's an essential maintenance task for keeping your repository healthy, especially in long-running or large projects.
+
+
+
+
+
+
+
+
+
+
+
+

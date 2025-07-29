@@ -1,0 +1,133 @@
+GIT - Part 1
+
+Git = DVCS "Distributed Version Control System" == High level of source code backup
+Rollback, easy enhancement, easy debugging, etc.,
+
+What is Git?
+	> Git is the one of the most commonly used version control system. It helps to track changes you make to files in the local system. It allows multiple developers to work together.
+	> It supports non-linear development through its thousands of parallel branches.
+
+Git Architecture: working dir (dedicated dir for every developer) - stage area (temporary/buffering location where the code will stay until we commit) - local repo - remote repo
+Git: Versioning purpose (on top of our remote server, we need to install git); s/w, cli
+Github: webhost, GUI
+
+Git helps us:
+1. Track changes across multiple files
+2. Compare versions of a project
+3. "Time travel" back to the old versions
+4. Revert to a previous version
+5. Collaborate and share changes
+6. Combine changes
+
+Difference between Git & GitHub (or) BitBucket:
+	These 2 are closely related but they are not the same thing,
+Git:
+	Git is the version control software that runs locally on your machine, You don't need to register for an account. You don't need the internet to use it, You can use Git without ever touching GitHub.
+
+GitHub (or) BitBucket:
+	GitHub/BitBucket as a service that hostst Git repositories in the cloud and makes it easier to collaborate with other prople. You do need to sign up for an account to use GitHub/Bitbucket. It's an online place to share work that is done using Git.
+
+Git Is (Primarily) A Terminal Tool: Git was created as command-line tool. To use it, we run various git commands. This is not the most user friendly experience, but it's at the very core of Git!
+
+Popular Git GUI's include:
+GitHub Desktop
+SourceTree
+Tower
+GitKraken
+Ungit
+
+Make sure we are downloading Git from Google, so we can even use Git bash terminal to pass the commands for our local setup.
+Make sure we are having accoung on Github.com (if we are going to use Github as the central repository)
+Create account with BitBucket (bitbucket.org) for using this as the central repository - give some workspace name (kloudevopsec) - let us create repository, Project name (myproject), Repository name (myrepo) - create; and this brings us to the bitbucket repo.
+
+What is a Repository?
+	A Git "Repo" is a workspace which tracks and manages files within a folder. Anytime we want to use Git with a project, app, etc we need to create a new git repository. We can have as many repos on our machine as needed, all with separate histories and contents.
+
+1. linux EC2 with bootstrap (launching + installation simultaneously) for the git installation
+#! /bin/bash
+yum install git -y
+2. configuration (for which project we are going to use this for)
+private - 1 specific server for that developer
+public - multiple developers will be provided access for this one server [real-time usage]
+3. using winscp we are going to move the file from local server to remote server
+
+Steps:
+1. create an ec2 linux server - add the shellscript - 30gb - launch
+
+2. login with putty - change to root user (sudo su -) - check for the git (git --version)
+
+3. open winscp - move the src code from local to remote server
+
+4. go to putty and go to the specific path (cd /home/ec2-user) - list the content (ls -lrt)
+
+5. now, we need to create a dedicated directory for the user, come to root path (cd) - give the command (mkdir shivwd) - go inside the directory (cd shivwd)
+
+6. we need to configure now
+[git config --global user.name  “Akshiv20”
+git config --global user.email “queenprince20@gmail.com”
+git config --global core.editor vim
+git config --global core.compression 2
+git config --global diff.tool vim.diff]
+{your github username
+github email address
+we are going to use vim editor
+core speed used for transferring the file
+as we are going to intergrate it with github which is 3rd party, we need to provide integration here}
+
+7. give (git config -l) to check the output
+
+8. give (git init) [means we are initializing the git]
+
+9. now, check the git local repo inside it (ls -la), you can see a local repository there (.git)
+
+10. now go inside the directory (cd .git) [here only we are going to do the src code recording] - list for the contents (ls -ltr) - you will be able to see all the related files
+
+11. come to the root path (cd) - go inside the working directory path (cd shivwd) - we need to copy the src code from local server to working directory (cp /home/ec2-user/URLExpSimple.java .)
+
+12. give command (git status) [it will give us an error msg stating that, the particular src code under untracked status]
+
+13. now, we need to add the file from working directory to staging area by (git add URLExpSimple.java), now give (git status) [now our src code are ready for the further commits]
+[*** FYI: Once the code came to staging area, either we can commit it to the local repo / we can remove it --- there is no way, you can move it back to the working directory]
+
+14. we need to commit this to our local repo now, (git commit -m "first commit") [-m: module; "first commit": provide the relevant description for the commit that is going to take place]
+
+15. give command (git branch) [we will be able to see the "master" branch has been created once after the 1st commmit]
+
+16. it's time to create our remote repository on our github - open github - click new - give a repo name - keep it public - create.
+
+17. now, a url has been created [everytime, when we are using the push/pull commits we need to use this; instead we can also create a variable so that we can avoid calling the entire url all the time]
+
+18. I am going to use a variable name here, called "origin" [git remote add origin https://github.com/akshiv2011/gitclass.git] {this names can be changed according to the requirement.
+
+19. run this command, and now check (git remote -v) [this confirms the variable name has been accepted]
+
+20. next step is to push the src code from local repo to remote repo, using (git push origin master) - it will request for the username (provide your github username) - then it will request for the password [*** for this we cannot use the github password, this system was working till Aug, 2021; but now they changed it for more secured purpose, hence now we need to use the authentication token generated under the github]; for generating token - go to the github, select the profile - settings - developer settings - personal access token - generate new token - give a note - expiration are customizable - provide all the permission - generate token (ex: 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) [paste the token on the termial, where it asked for the password]
+
+21. to confirm this, go to the github and look for the repository, now we will be able to see the commit has been successful.
+
+22. Now, we are going to create a feature branch, [as master branch is one single branch for the entire project; but we used to have a lot of developers inside a single project, hence we need to create multiple branches for each and everyone]
+
+23. give git branch [currently we are in our master branch], give command (git log --oneline) [this command helps to see the commit wise record], if we need to see what is inside the commit, give command (git show [commit id]), if we need to investigate the entire src code, then give command (git blame URLExpSimple.java)
+
+24. we need to create a feature branch, for this give (git branch dev) - give command (git branch) [it will list the new branch that got created]
+[we do have another command (git switch -c dev), this command will create and chekout to the feature branch in one shot]
+
+25. in order to go to feature branch, give command (git checkout dev) - then confirm by (git branch), now we can see there is one single commit there that happened on the master branch (git log --oneline)
+
+26. open your src code file on the local, do some changes on the content - again upload the file via winscp - now we need to bring this changed src code content from local server [it will ask for a confirmation msg to overwrite - give yes] - working directory (cp /home/ec2-user/URLExpSimple.java .) [again here we need to confirm "yes" for overwrite]
+
+27. in order to confirm the changes happened is successful or not, open the file and check (vi URLExpSimple.java)
+
+28. give (git status) - and add this for tracking the data to move into staging area and commit to the local repo at the same time (git commit -am "second commit")
+
+29. give command (git branch) [make sure everything should happen on the feature branch] - give command (git log --oneline) [where we will be able to see the 2 commits now]
+
+30. in order to make sure that it is happening only on the feature branch and not on the master - go to master branch (git checkout master) - (git branch) - (git log --oneline)
+
+31. if everything looks good, we need to merge the feature branch content to the master branch, give command (git merge dev) - now give (git log --oneline), we will be able to see 2 commits under the master
+
+32. now push this from local repo - master repo (git push origin master) provide the username (github email) - password (personal token) - confirm this by going inside the github check the commits
+
+
+
+

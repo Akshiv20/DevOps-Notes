@@ -1,0 +1,117 @@
+GIT - Part 2
+
+Git setup - ec2 + git installation
+git configuration
+git basic commands - yum, git config, git status, git add ., git commit, git push, git log, git blame, git show, 
+git branch - 1master + more feature, git checkout master, git checkout dev, git branch
+git merge - merging from feature to master
+Git pull - Remote to local (when there is a requirement for app enhancement, we will pull it) pull = fetch + merge
+fetch - remote repo to local repo; merge - local repo to working directory
+
+1. Create another repository on your github
+
+2. Now, create another directory on your putty (mkdir akshiv) - (cd akshiv)
+
+3. we need to create a local repo for this machine (git init)
+
+4. try to upload another source code from local [but here I am just going to create a file by using vi editor] (vi prog.java)
+
+5. now add this to the staging and commit it to the local repo (git add .) - (git commit -m "1st commit")
+
+6. create an variable name before pushing this (git remote add origin https://github.com/Akshiv20/newgitrepo.git) [we can use the same variable name "origin" if we are going this for different repo/project; but you cannot use the same variable name under the same project]
+
+7. provide command (git remote -v) to confirm this
+
+8. now, we need to push this from our local to remote repo (git push origin master) - provide with the username and personal token we created on our github account.
+
+9. go to the 1st created directory (cd) - (cd shivwd) - now, we are trying to pull the source code from the 2nd directory to the 1st one
+
+1st directory name: 		shivwd
+1st directory repo: 		gitclass
+1st directory src code:		URLExpSimple.java 
+
+2nd directory name: 		akshiv
+2nd directory repo: 		newgitrepo
+2nd directory src code: 	prog.java
+
+give command (git pull https://github.com/Akshiv20/newgitrepo.git) [this url belongs to the 2nd repo - code - copy the url]
+{we will be getting an error here, stating that the src code we are using are different from one another, hence this will get refused one another} - now we are tyring to enable pull option from github (git config --global  pull.ff true) -- still the issue persists and this time we got a different error (fatal: Not possible to fast-forward, aborting) then run this command (git pull https://github.com/Akshiv20/newgitrepo.git --no-ff) - then if you're facing unrelated histories error use the below command.
+
+10. give commad (git pull --allow-unrelated-histories https://github.com/Akshiv20/newgitrepo.git --no-ff) - this will open the editor, just save and exit (:wq!) [now it will tell you that the content got changed.
+
+11. to confirm this, list the content (ls -ltr)
+
+12. come to the root path - (ls)- make sure we got 2 different directories
+
+13. next thing, we are trying to take a clone (this acts like an additional backup) - give command (git clone https://github.com/Akshiv20/newgitrepo.git) [this url belongs to the 2nd repo - code - copy the url]
+
+14. now (ls) - we will be able to see another copy into our remote server [to confirm more, you can go inside the directory (cd newgitrepo) - (ls) [we will be having our content inside to it]
+
+15. come to root path (cd) - go to any directory, here I am taking the 2nd directory (cd akshiv) - check the branch [currently we will be in our master branch]
+
+16. as we don't have a feature branch here, try to create one (git branch febranch) - go inside the feature branch (git checkout febranch) - to confirm this give (git branch)
+
+17. check the commit has been merged by checking the logs (git log --oneline)
+
+18. now, try to do some changes on the code, (vi prog.java) - commit it directly (git commit -am "new commit") - now we can see feature branch has 2 commits (git log --oneline), but master will be having only one commit
+
+19. as we added a new commit, go to the master branch (git checkout master), and merge (git merge febranch), now check the log, we will be able to see the new commit here (git log --oneline)
+
+20. someone, mistakenly added a new commit on the master branch (vi prog.java) - and commited it (git commit -am "3rd commit) [check log for the 3rd commit (git log --oneline)]
+
+21. without knowing this information, I am going inside my branch in order to make some new change, as this 3rd commit won't reflect on my branch I am unaware of this commit, open my file (vi prog.java) - added a new line on that file, once done I am trying to update my new commit (git commit -am "updated")
+
+22. once this done, I need to merge this with the master, hence i am going to the master branch (git checkout master) - and trying to merge it with the master (git merge febranch) [now we will get the conflict error, why? because already we have a changes done one the master, without knowing that we are tyring with the new changes this is not going to accept by the master]
+
+23. to avoid this we need to use this config commands
+git config --global merge.tool vimdiff
+git config --global merge.conflictstyle diff3
+git config --global mergetool.prompt false
+[we are using merge tool
+conflictstlye package has been added
+prompt false additional merging tool plugin has been added]
+
+24. give (git config -l) - to confirm all the configuration contents has been added or not
+
+25. git command (git mergetool) click enter once again - this opens another windows with 4 different box [1 box shows the local [master branch], 2nd one is base; 3rd one is remote [feature branch] and the last one shows the entire file with issues]
+[***FYI: learn how to move to each boxes (ctrl+ww), by clicking this we will be able to move to each boxes one by one]
+
+26. now, we are going to use both the code, as both are important code, make sure we are on the 4th box, and remove all the unwanted lines other than the exact code (insert mode) - once done, give (esc:wqa)
+
+27. now we need to merge, [make sure you are on the master branch (git branch)] - give command (git commit -am "add") - check the logs (git log --oneline) [when we are doing this extra commits, this will reflects only on the master branch] {this is considered to be an issue for future commits, it may brings a lot of confusions; in order to avoid this we have a concept called Rebase}
+
+28. make sure you are on the feature branch (git branch) - now, give command (git rebase master) [using this command we will be able to get all the commit from master to feature] - check for the logs
+
+29. we are going to see cherry pick now - go to the root path (cd) - create a new directory (mkdir om) - (cd om) - we need to create a local repo (git init) - create new file with some content (vi file) - and then add this to the staging area (git add .) - now commit it (git commit -m "cherry commit") - now create a feature branch (git branch fb) - go inside the branch (git checkout fb) - check for the logs (git log --oneline) - go back to the master - (git checkout master) - now someone mistakenly changed the content from the master branch - (vi file) [do some changes] - and commited the file (git commit -am "2nd commit") [do this twice or thrice] - check for the total number of commits (git log --oneline)
+
+30. now, we can see the commits happened only on the master and feature still got the single commit, using cherry pick we will be able to pick only a specific commit and we can add that, go inside the feature branch (git checkout fb) - give command (git cherry-pick [commit id]), now this throws with an error message (merge conflict in file) - so give the command (git status) & we can see that there are some untracked files; to track, give (git add .) - (git cherry-pick --continue) - this opens the editor, now give some message for the commit, save and close the editor; now check for the logs (git log --oneline) we will be able to see the commit got added now
+[difference between rebase and cherry-pick?
+rebase, is going to pick everything from master and add to the feature branch
+cherry-pick, can pick a specific commit and it can add to the feature branch, at the same time you can see the commit id got changed]
+
+Rebasing is like taking your changes and putting them on top of someone else's changes. It's like rearranging the order of things so everything fits neatly in a line. This can make the project history look cleaner and easier to understand.
+
+Cherry-picking, on the other hand, is like plucking specific changes from one place and putting them somewhere else. You're just taking the bits you need and moving them over, without worrying about the order of things. It's useful when you only want certain changes, not everything from a whole branch.
+
+So, rebasing is about lining up changes one after another, while cherry-picking is about picking and choosing specific changes to move around.
+
+Deleting Branches: (Local & Remote)
+1. Delete local branch (git branch -d [feature branch name])
+2. Delete remote branch (git push origin --delete [feature branch name])
+
+Why do we need to delete the branch, once after merge? Coz we need to maintain a clean repository; this prevents confusion with stale branches. [After merging a feature, clean up the repo by deleting branches]
+
+Task:
+1. What is Git Stash?
+2. What is Git Fork?
+
+
+
+
+
+
+
+
+
+
+
