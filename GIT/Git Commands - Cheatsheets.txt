@@ -1,0 +1,136 @@
+Uses of Git:
+
+> Git is used to tracking changes in the source code.
+> Distributed version control tool used for source code management.
+> Allows multiple developers to work together.
+> Supports non-linear development because of its thousands of parallel branches.
+
+Git Workflow:
+
+The workflow is mainly divided into three areas -
+
+    > Working directory - This is the area where you modify your existing files.
+    > Staging area - In this, the files in your working directory are staged and snapshots are added.
+    > Git directory or repository - It is basically where you perform all the changes that need to be made i.e. perform commits to branch, checkout branch, make changes etc.
+
+
+Git Commands:
+
+1. Git Configure: Configure your username and email using the following command:
+$ git config --global user.name "user_name"
+$ git config --global user.email "user_email@gmail.com"
+
+2. Clone a specific branch from the repository:
+git clone -b <Branch_name> <Repo_URL>
+
+3. creating a new branch:
+git branch <branch_name>
+
+4. Switching branches:
+git checkout <branch_name>
+
+5. steps to create a remote branch:
+ > Create a local branch and switch to that branch: git checkout -b <branch_name>
+ > Push in the local branch: git push -u origin <branch_name>
+
+6. Delete branches:
+git delete -d <branch_name>
+
+To delete remote branches:
+git push origin --delete <branch_name>
+
+7. Git status: used to display the state of the staging area and the repository. It helps us to track all the changes made, point out untracked files.
+git status
+
+8. Commit from Staging area to Local repo:
+ > The -m along with the command lets us write the commit message on the command line: git commit -m "Commit message"
+ > The -am along with the command is to write the commit message on the command line for already staged files: git commit -am "Commit message"
+ > The amend is used to edit the last commit. In case we need to change the last committed message, this command can be used: git commit -amend
+
+9. Git merge from other branches:
+git merge <branch_name>
+
+10. Git Rebase: The goal of rebasing is to take all the commits from a feature branch and put it on the main branch.
+git rebase <branch_name>
+
+11. Git Fetch: only downloads the latest changes into the local repository.
+git fetch <branch_name>
+
+12. Git pull remote branch: can pull in any changes that have been made from your forked remote repository to the local repository.
+pull a remote repository: git pull (or) git fetch origin head
+use the following command to check for the changes: git pull <RemoteName> <BranchName>
+
+13. Git stash: stores the unfinished code in a stash and cleans the current branch from any uncommitted changes. Now, we can work on a clean working directory.
+ > git stash
+you no longer require a stash, you can delete it with the following command: git stash drop <stash_id>
+If you want to delete all the stashes: git stash clear
+
+14. Git blame: used to know who/which commit is responsible for the latest changes in the repository.
+git blame <file_name>
+
+15. Cherry-pick: Choosing a commit from one branch and applying it to another is known as cherry picking in Git.
+git cherry-pick <commit_id
+
+Git Commands
+
+The following table shows the most commonly used Git Commands:
+S. No 	Command Name  					Use
+1 	git init 					Initialise a local Git Repository
+2 	git add. 					Add one or more files to the staging area
+3 	git commit -m “Commit Message” 			Commit changes to the head but not to the remote repository.
+4 	git status 					Check the status of your current repository and list the files you have changed.
+5 	git log 					Provides a list of all commits made on a branch
+6 	git diff 					View the changes you have made to the file
+7 	git push origin <branch name> 			Push the branch to the remote repository so that others can use it.
+8 	git config --global user.name “Name” 		Tell Git who you are by configuring the author name
+9 	git config --global user.email user@email.com   Tell Git who you are by configuring the author email id.
+10 	git clone <repository_name> 			Creates a Git repository copy from a remote source
+11 	git remote add origin <server> 			Connect your local repository to the remote server and add the server to be able to push it.
+12 	git branch <branch_name>   			Create a new branch
+13 	git checkout <branch_name> 			Switch from one branch to another
+14 	git merge <branch_name> 			Merge the branch into the active branch
+15 	git rebase 					Reapply commits on top of another base tip
+16 	git checkout -b <branch_name> 			Creates a new branch and switch to it
+17 	git stash 					Stash changes into a dirty working directory
+18 	git pull 					Update local repository to the newest commit
+19 	git revert <commit_id> 				Revert commit changes
+20 	git clean -n 					Shows which files would be removed from working directory. Use the -f flag in place of the -n flag to execute the clean.
+21 	git log --summary 				View changes (detailed)
+22 	git diff HEAD 					Show difference between working directory and last commit.
+23 	git log --oneline 				View changes (briefly)
+24 	git reflog 					Show a log of changes to the local repository’s HEAD. Add --relative-date flag to show date info or --all to show all refs.
+25 	git rebase -i <base> 				Interactively rebase current branch onto <base>. Launches editor to enter commands for how each commit will be transferred to the new base.
+26 	git restore --staged <file_name> 		Resetting a staged file
+27 	git rm -r [File_name] 				Remove a file (or folder)
+28 	git config --list 				List all variables set in config file, along with their values
+29 	git branch -d <local_branch>   			Delete local branch in Git
+30 	git push -d <remote_name> <branch_name> 	Delete remote branch in Git
+31 	git stash pop 					Unstash the changes
+32 	git commit -am 					The -am along with the command is to write the commit message on the command line for already staged files.
+33 	git commit -ammend 				The amend is used to edit the last commit. Incase we need to change the last committed message, this command can be used.
+34 	git rm 						The git rm command is used to remove or delete files from working tree and index.
+35 	git pull --rebase 				Git rebase is used to rewrite commits from one branch to another branch.
+36 	git merge --squash 				The squash along with git merge produces the working tree. It indexes in the same way as that of the real merge, but discards the merge history.
+37 	git revert -e <commit_id> 			edit the commit mesage before reverting, -e is used for the same.
+38 	git bisect 					Git bisect goes through all the previous commit and uses binary search to find the bugged commit.
+39 	git blame 					git blame is used to know who/which commit is responsible for the lastest changes in the repository.
+40 	git cherry-pick 				Choosing a commit from one branch and applying it to another is known as cherry picking in Git.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

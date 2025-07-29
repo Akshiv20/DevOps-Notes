@@ -1,0 +1,134 @@
+RoadMap for DevOps:
+
+What is DevOps?
+    DevOps is a set of practices that aims to improve collaboration between software development (Dev) and IT operations (Ops) teams. This process emphasizes communication, collaboration, integration, and automation to streamline the software delivery process and enhance the quality of software development and deployment.
+
+What's the average salary for a DevOps Engineer?
+	In US the average salary for a DevOps Engineer comes around $130,000 per year, Where as in India it comes around 10L. This vary significantly based location, years of experience, skill set, and the specific industry or company. 
+
+What do DevOps Engineer role?
+	Their primary role focused on deploying on Application, which includes creating servers, databases and also configuring them. Along with that they are also responsible for monitoring & troubleshooting. 
+	Next important aspect is going to be on Automation, we as a DevOps Engineer needs to learn how to automate repetitive stuffs, creating infrastructure application or configuration; even the complete deployment is automated. 
+
+RoadMap:
+1. Basics of SDLC (Software development lifecycle): where we need to understand about the different phases of software. Definition and deep dive is not required, whereas we need to know about the phases and how devops comes into this picture when comes to our application.
+Blog: 
+https://www.geeksforgeeks.org/software-development-life-cycle-sdlc/
+Video Links:
+https://www.youtube.com/watch?v=Fi3_BjVzpqk
+https://www.youtube.com/watch?v=Gkp8wLZAtpY
+
+2. Operating System (Linux) is more frequently used OS, hence we are going to majorly focus of different variants of Linux like (ubuntu, centOS, Debian, RedHat), in this we need to learn about the Shell commands, SSH for remote access, Virtualization, TextEditors for File editing (vim, nano etc.,), File system permissions (chmod, chown), Package Management (apt, yum), Process and Service management (ps, kill)
+Best Practice: Everyday try atleast 10 linux commands to become a pro.
+Major concentration: Web server setup, Database setup, User and Group management, Install different DevOps tools (Docker, Jenkins, Terraform, Ansible etc.,)
+CheatSheet:
+https://cheatography.com/davechild/cheat-sheets/linux-command-line/
+Video Links:
+https://www.youtube.com/watch?v=lCq4mYQL0WY
+https://www.youtube.com/watch?v=sWbUDq4S6Y8
+
+3. Scripting & Programming: we are going to use scripting for Backup Automation, Working with APIs, Integration with other DevOps tools, System Cleanup Automation, Email Notification Script, Software update script, Log analysis automation, Network Diagnostics script, Data transformation Automation, User account management script.
+
+ - As a DevOps Enginner do I need to learn Coding?
+	The answer is yes, DevOps engineer needs coding knowledge, not necessarily for application development, but to utilize tools, SDKs, and scripting for seamless integration and automation in the DevOps workflow.
+ - How much knowledge of coding or programming is required for DevOps Engineer?
+	Extensive knowledge is not required as we are not going to create applications like software developers, but as a DevOps engineer in order to do our daily tasks we need to have some knowledge
+ - Real life use cases
+1. To create automation scripts (for ex: taking daily backup of database)
+2. Implementing monitoring, alerting systems usinf programming languages like Python, Golang
+3. To create custom plugins & extensions for tools like Gitlab, Jenkins using Java, Python or Golang
+4. Using Bash scripts to automate infrastruture provisioning and application deployments 
+ - Recommended language for DevOps engineer
+Python (easy to learn, and can be used in all situations)
+Golang
+
+Video Links:
+1. Bash scripting: https://www.youtube.com/watch?v=tK9Oc6AEnR4
+2. Python for DevOps: https://www.youtube.com/watch?v=guCFLTU-XRM
+
+4. Git for Version Control: we need to know about Branching (create, switch, and delete branches; Understand the role of feature branches) Git commands (Master basic commands like init, clone, add, commit, push, pull, merge; Advanced commands like rebase, cherry-pick) Pull/Merge requests (create, review, and merge pull requests) GitHub/Gitlab (how to use and store code on remote git repositories)
+
+Video Links:
+https://www.youtube.com/watch?v=_kwJ2GCafuA
+
+Game Link:
+https://ohmygit.org/
+
+Official Book:
+https://git-scm.com/book/en/v2
+
+5. Networking & Security: when we are deploying an application we need to make sure that the users are able to access the application, at the same time we need to make sure that the application is secured and safe from unautorized access; to manage traffic and security we need to have knowledge on Networking and security. As a DevOps Engineer we need to know concepts like IP Addressing, Ports and protocols (TCP/IP, UDP, HTTP, DNS), Network Services (DHCP, DNS), Routing and Switching Basics, Authetication and Authorization, Security best practices, Shift-Left security, Firewalls and Network security. 
+
+Video Links:
+https://www.youtube.com/watch?v=qiQR5rTSshw
+https://www.youtube.com/watch?v=M9Kex1ID7GY
+
+6. Cloud: Due to a lot of migrations and easy access now cloud becomes mandatory one to become a DevOps Engineer. We need to focus on Servers, Storage, Security, Database, Networking, DNS, Monitoring service, Serverless setup, Kubernetes management etc. 
+In AWS: Amazon VPC, EC2, S3, RDS, IAM, CI CD Services (Codecommit, Codebuild, Codedeploy, Codepipeline, Codestar), Route53, DynamoDB, ElasticCache, CloudFormation, ECR, ECS, EKS, CloudWatch, CloudTrail, Lambda, System Manager, Elastic Beanstalk, KMS, Secret Manager.
+
+7. Infrastructure as Code: we code to create and configure infrastrucutre. 2 types of IAC tools (Infrastructure provisioning = creating multiple servers along with network and others we can use this [terraform is recommended], Configuration management = if we want to bring database inside this and bringing webserver and other activies [Ansible is recommended]), we are focusing because this saves time avoiding to repeat creation and configuration, and this can be used in future.
+
+Video Links:
+https://www.youtube.com/watch?v=BXPsMuinvf4
+https://www.youtube.com/watch?v=XgwV2HnBSws
+
+Terraform project link: https://www.youtube.com/watch?v=wFWg0Y68Owo
+
+8. Microservices and Containerization: we can deploy applications independently for better management, and they are packaged in a container (a packaged application with its dependencies, isolated for easy deployment, and capable of running consistently on any machine, Docker is the most popular one. We need to focus on Concepts, how to write docer files? (Containerize the application), Docker commands (build, run, exec, ps), how to push and pull docker images in Docker Hub.
+
+Video Links:
+https://www.youtube.com/watch?v=3c-iBn73dDE
+
+Project links: 
+Microservices: https://www.youtube.com/watch?v=jHlRqQzqB_Y
+Docker: https://www.youtube.com/watch?v=XeoZstvyew8
+
+9. Container Orchestration (Kubernetes): to manage multiple docker container we can use this orchestration tool, we need to focus on what is kubernetes and how it works, Cluster creation and administration, Deploying application K8s cluster, Kubernetes frequent commands, 
+
+Video Links:
+https://www.youtube.com/watch?v=bjrlo9LwMJY
+https://www.youtube.com/watch?v=s_o8dwzRlu4
+
+Project Link:
+https://www.youtube.com/watch?v=pTmIoKUeU-A
+
+10. CICD Pipelines: deploys software in automated fashion using CICD pipeline (Commit change, Trigger build, Build, Notify of build outcome, Run tests, Notify of test outcome, Deliver build to staging, Deploy to production). We need to know how to write pipeline scripts, Integrating tests, Trigger build (Popular tools: Gitlab CI, GitHub Actions, Jenkins, Circle CI)
+
+Video Links:
+Gitlab: https://www.youtube.com/watch?v=G1u4WBdlWgU
+Jenkins: https://www.youtube.com/watch?v=6YZvp2GwT0A
+GitHub Actions: https://www.youtube.com/watch?v=R8_veQiYBjI
+
+11. Monitoring and Logging: to track performance and discover problems, by monitor we can identify and address issues in early stages, we can monitor software, infra, and user experience this improves our software deliver. Logging collects system events for trobleshooting and performance monitoring. (Popular tools: Prometheus, Grafana, Nagios, ELK etc.,)
+
+Video Links:
+https://www.youtube.com/watch?v=aljzrNEqNDw
+https://www.youtube.com/watch?v=h4Sl21AKiDg
+
+12. GitOps: this involves using Git to manage and automate the entire delivery process from version control to deployment, before GitOps we need to know Git, CICD & IAC (Popular tools: ArgoCD and FluxCD)
+
+Video Links:
+https://www.youtube.com/watch?v=1hF-HRq5Mww
+
+Blog:
+https://about.gitlab.com/topics/gitops/
+
+13. Service Mesh: in microservices we are using many services this leads to multiple issues, this service mesh used to work on with the problems like service discovery, traffic management, monitoring & logging, encryptions etc., (Popular tools: Istio, Consul connect)
+
+Blog links:
+https://istio.io/latest/docs/examples/bookinfo/
+https://www.solo.io/topics/service-mesh/
+
+Advanced:
+1. Projects
+2. Certifications
+3. Internships
+4. Join communities for all the tools
+5. Different Blogs
+6. Case studies
+7. Create your own issues and debug
+8. Resume preparation with Mock Interviews.
+
+
+
+
