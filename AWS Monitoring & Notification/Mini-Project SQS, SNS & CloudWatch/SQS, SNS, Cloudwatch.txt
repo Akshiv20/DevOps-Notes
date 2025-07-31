@@ -1,0 +1,65 @@
+SQS, SNS - Application Engineering
+
+What is SNS?
+	Amazon Simple Notification Service (Amazon SNS) is a fully managed messaging service for both application-to-application (A2A) and application-to-person (A2P) communication.
+
+What is SQS?
+	Amazon Simple Queue Service (SQS) is a fully managed message queuing service, where you can send, store, and receive messages between software components at any volume, without losing messages or requiring other services to be available.
+
+what is message? Meaningful Information
+Parts of message? Subject, Body, metadata, Timestamp
+
+What is Queue?
+    It is a buffer/temporary location where the message stays until receiver picks up.
+
+Email Examples
+Types of Queues:
+Local:  Inbox
+Remote:  Sent
+Dead letter queue: outbox - undelivered message
+Alias: customised folder / duplicate.
+
+What is communication?
+   Transferring the message/information from one end (sender) to another end (receiver)
+
+Two ways of communication:
+synchronized mode:     Both sender and receiver should be active (call)
+asynchronized mode:   sender always active but it won't bother about receiver activeness (whatsapp group message) - in real-time we will use this mode of communication.
+	Within this we are having 2 different types
+		1 to 1 communication: SQS - Simple Queueing Service
+		1 to many	    : SNS - Simple Notification service
+
+2 types of Queue:
+Standard   	: Non-Sequential manner of communication 
+FIFO	: Sequential manner of communication (First in - First out)
+
+
+What is Cloudwatch?
+	It is a Monitoring tool, highly used in support/delivery team. This helps to monitors the Infra's and helps to triggers alert, this helps to troubleshoot and fix the issue. It is a chargable service.
+
+Every 5 mins monitoring - Basic 
+Every 1 mins montoring - Advanced/Deatiled
+
+
+Steps:
+1. Create Simple SQS - provide the needed details - try sending test message and confirm the same
+2. Create simple SNS topic 
+3. Add Subscriber - Email (verify it)
+4. Create an IAM role as we are going to bring communication between 2 different services.
+5. Create SQS - Attach the Role (ARN) under access policy.
+6.  Add as a 2nd Subscriber - SQS - attach the SNS subscriber for 2 way communication
+7. Try sending message - confirm whether both the subscribers received it or not.
+8. Create a free-tier Linux machine and open the server.
+9. Open cloudwatch - Metrics - put the Instance ID - select the metrics - check the CPU utilization - click graphed metrics - create alarm (for sending notification) - under conditions select greater/equal to - keep the threshold limit as 0%, as we have an empty server - under notification select existing SNS topic - Provide an alarm name (description if needed).
+10. Once it reached the time - from Insufficient data, it moves automatically into In alarm - check SQS and Email - for Notification.
+
+Task:
+1. Add SMS as 3rd subscriber, and try sending Notification
+2. Multiple metrics under cloudwatch, and getting Notification via SNS
+3. Try Cloudwatch with Autoscaling and ELB
+
+
+
+
+
+
