@@ -1,0 +1,562 @@
+1. Build Tools - "Automate the building of your project"
+
+Definition: A Build Tool is a software that automates the steps needed to convert your source code (written by a developer) into a working application. This includes tasks like:
+
+ > Compiling the code (converting it to machine-understandable form)
+ > Running tests
+ > Packaging the code into deployable formats (like .jar, .war, .zip, or .exe)
+ > Generating documentation
+ > Deploying to servers or artifact repositories
+
+Common Build Tools and Examples:
+================================
+| Language           | Build Tool            | Description                                                   |
+| ------------------ | --------------------- | ------------------------------------------------------------- |
+| Java               | Maven, Gradle         | Automates building, testing, packaging `.jar` or `.war` files |
+| JavaScript/Node.js | Webpack, Gulp         | Bundles JS/CSS/HTML, automates front-end tasks                |
+| Python             | `setuptools`, `build` | Packages Python code for distribution                         |
+| C/C++              | Make, CMake           | Compiles and links C/C++ code                                 |
+| .NET               | MSBuild, dotnet CLI   | Used in building .NET projects                                |
+
+Related Terms:
+==============
+ > Build Script: A configuration file (like pom.xml in Maven or build.gradle in Gradle) that defines how the build should happen.
+ > Artifact: The final output of a build, e.g., .jar, .zip, .exe.
+ > CI/CD: Build tools are often integrated into Continuous Integration/Delivery pipelines to automate builds and deployments.
+
+2. Package Managers - "Install and manage external libraries/tools"
+
+Definition: A Package Manager helps you download, install, upgrade, and manage external libraries or dependencies your project needs to work. It keeps everything organized, avoids version conflicts, and saves developers time.
+
+Why Use a Package Manager?
+ > You don’t have to download each dependency manually.
+ > Automatically resolves dependencies of dependencies.
+ > Ensures version consistency across environments.
+ > Makes sharing and deploying software easier.
+
+Examples of Popular Package Managers:
+| Language/Platform | Package Manager | Description                                     |
+| ----------------- | --------------- | ----------------------------------------------- |
+| JavaScript        | npm, yarn       | Manages Node.js libraries (`package.json`)      |
+| Python            | pip             | Installs libraries listed in `requirements.txt` |
+| Java              | Maven, Gradle   | Also act as dependency/package managers         |
+| Linux OS          | apt, yum, dnf   | Installs software on Debian/Ubuntu/RedHat       |
+| Go                | go modules      | Manages Go packages                             |
+| Rust              | cargo           | Handles building and dependency management      |
+
+Related Terms:
+==============
+ > Dependency: A library or package your project needs to work.
+ > Versioning: Most package managers support semantic versioning like 1.0.0, ^1.2.3, or ~1.2.
+ > Lock file: e.g., package-lock.json or Pipfile.lock – ensures consistent package versions are used in all environments.
+ > Repository: The online storage of packages (e.g., npmjs.com, PyPI, Maven Central).
+
+Build Tool vs Package Manager - Key Difference
+==============================================
+| Feature      | Build Tool              | Package Manager                   |
+| ------------ | ----------------------- | --------------------------------- |
+| Purpose      | Builds your application | Installs libraries (dependencies) |
+| Example Task | Compile & test code     | Download and install packages     |
+| Input        | Source code             | Dependency definitions            |
+| Output       | Executables, artifacts  | Installed libraries               |
+
+Real-Time Example: Java + Maven
+===============================
+Let’s say you’re building a Java app:
+1. You define dependencies in pom.xml like:
+
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>5.3.9</version>
+</dependency>
+
+2. Maven (Package Manager) downloads that library and stores it locally.
+3. Then Maven (as Build Tool) compiles the app, runs tests, and creates a .jar file.
+
+What is an Artifact?
+====================
+	An artifact is the final output of your source code that you can run, deploy, or share.
+
+Think of it like this:
+ > You write code -> you build it -> you get a "ready-to-use file" -> That file is called an artifact.
+
+Examples of Artifacts:
+======================
+| Language/Platform | Source Code        | Build Tool         | Final Artifact          |
+| ----------------- | ------------------ | ------------------ | ----------------------- |
+| Java              | `.java` files      | Maven / Gradle     | `.jar` or `.war` file   |
+| Python            | `.py` files        | setuptools / build | `.whl` or `.tar.gz`     |
+| JavaScript        | `.js`, `.ts` files | Webpack / Parcel   | Bundled `.js`, `.html`  |
+| C/C++             | `.c`, `.cpp` files | make / gcc         | Binary `.exe` or `.out` |
+| Docker            | Dockerfile         | Docker CLI         | Docker Image (`.tar`)   |
+
+What is "Building an Artifact"?
+	It means taking the code you wrote and processing it (compile, bundle, compress, etc.,) into a file that you can run or deploy.
+
+Steps involved in building an artifact:
+=======================================
+1. Write your source code
+2. Define a build script/config file (like pom.xml or setup.py)
+3. Run the build tool
+4. Get the output file (the artifact)
+
+What is an Application Artifact?
+================================
+	An application artifact is a final, ready-to-use file that's created after building your application.
+It could be:
+ > A java .jar file
+ > A Python wheel (.whl)
+ > A Docker image
+ > A JavaScript bundle (.js)
+ > A binary executable file (.exe, .out)
+
+What Does It Mean to “Run an Artifact”?
+=======================================
+	It means to execute the application or start it by using the artifact — the same way you might double-click an app on Windows or launch a website in a browser.
+
+But in DevOps/developer terms, it means using commands like:
+ > java -jar myapp.jar
+ > python3 -m mypackage
+ > docker run myimage
+ > ./myprogram.out
+
+Publishing an Artifact:
+=======================
+After you build an artifact (like a .jar, .whl, or Docker image), you often want to:
+ > Store it in a central repository so it’s accessible to other team members, systems, or pipelines.
+ > Version it, secure it, and reuse it in deployments or CI/CD.
+
+This process is called "publishing the artifact" (also known as artifact deployment or uploading).
+
+Artifact Repository:
+====================
+An artifact repository is a server/tool that stores built application artifacts.
+
+Examples of Artifact Repositories:
+==================================
+| Repository            | Use Case                              | Stores                         |
+| --------------------- | ------------------------------------- | ------------------------------ |
+| **JFrog Artifactory** | Most popular, supports many languages | `.jar`, `.whl`, `.zip`, Docker |
+| **Sonatype Nexus**    | Open-source alternative               | All kinds of artifacts         |
+| **AWS CodeArtifact**  | Cloud-native for AWS workflows        | Java, npm, Python, etc.        |
+| **GitHub Packages**   | GitHub-based repo                     | Docker, Maven, npm, etc.       |
+| **PyPI**              | Python community repository           | `.whl`, `.tar.gz`              |
+| **npm registry**      | Node.js/JavaScript packages           | `.tgz`                         |
+| **Docker Hub**        | Container images                      | Docker Images                  |
+
+General Steps to Publish an Artifact:
+=====================================
+🧱 1. Build the Artifact
+Use a build tool like Maven, Gradle, pip, or Docker to generate the artifact.
+
+📤 2. Authenticate to the Repository
+Use credentials, API tokens, or access keys to log in securely.
+
+📌 3. Push or Deploy the Artifact
+Use your build tool’s plugin or a command-line tool to upload the artifact to the repository.
+
+✅ 4. Artifact is Versioned and Available
+Other apps or pipelines can download and reuse the published artifact.
+
+Dependency Management in Software Development:
+==============================================
+What is a Dependency?
+	A Dependency is an external library or tool your application needs to function.
+
+Examples of Dependencies:
+ > Java: spring-core, commons-lang3
+ > Python: requests, flask
+ > JavaScript: react, axios
+
+Why Dependency Management?
+Instead of downloading libraries manually:
+ > A package manager or build tool handles it
+ > It resolves the correct versions
+ > It installs sub-dependencies too
+ > It avoids version conflicts
+
+Importance of Build Tools for DevOps Engineers:
+===============================================
+Build tools are essential in DevOps because they are the foundation of automation, CI/CD pipelines, and reliable deployments.
+
+Key Reasons:
+============
+| Reason                       | Description                                                       |
+| ---------------------------- | ----------------------------------------------------------------- |
+| ✅ **Automation**             | Build tools automate repetitive tasks (compile, test, package)    |
+| ✅ **Integration in CI/CD**   | Jenkins, GitLab CI, GitHub Actions use build tools in pipelines   |
+| ✅ **Artifact Creation**      | Needed to produce `.jar`, `.whl`, Docker images for deployment    |
+| ✅ **Dependency Handling**    | Automatically pulls and manages all required libraries            |
+| ✅ **Consistency**            | Builds and runs the same way every time (important in production) |
+| ✅ **Testing and Validation** | Build tools often run automated tests                             |
+
+Real DevOps Scenario:
+=====================
+1. Developer commits code to Git
+
+2. CI/CD pipeline runs Maven or npm to:
+ > Install dependencies
+ > Run tests
+ > Create artifacts
+
+3. Artifact is pushed to JFrog Artifactory or Docker Hub
+
+4. CD pipeline deploys the artifact to EC2 or Kubernetes
+
+✅ All of this relies on build tools and package managers!
+
+Demo Project:
+=============
+Simple end-to-end Maven-based Java project
+Build a simple Java application that prints system information and current date/time using an external dependency.
+
+Technology Stack:
+| Component       | Tool/Language                        |
+| --------------- | ------------------------------------ |
+| Language        | Java                                 |
+| Build Tool      | Maven                                |
+| Package Manager | Maven dependency manager (`pom.xml`) |
+| Artifact Format | JAR (`.jar`)                         |
+| Deployment Host | AWS EC2 Ubuntu                       |
+
+
+Steps: 
+1. EC2 Instance setup (Ubuntu) - create an Ubuntu machine - t2.micro - open all the ports - 30gb
+
+2. Install Java and Maven
+ > Install Java (OpenJDK 11) & Maven:
+
+sudo apt update
+sudo apt install -y openjdk-11-jdk maven
+
+ > Verify:
+
+java -version
+mvn -version
+
+3. Create a Simple Maven Project [copy paste this directly in the terminal]
+
+mvn archetype:generate \
+  -DgroupId=com.akshiv.ec2 \
+  -DartifactId=system-info-app \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DinteractiveMode=false
+
+By running this command, Maven creates a folder: system-info-app/
+
+[*** Project Structure
+
+system-info-app/
+├── pom.xml
+├── src/
+│   ├── main/java/com/akshiv/ec2/App.java
+│   └── test/java/com/akshiv/ec2/AppTest.java
+
+***]
+
+[***
+
+What this does?
+
+| Term                           | Explanation                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| `mvn archetype:generate`       | Tells Maven to create a new project from a template (called an "archetype")    |
+| `-DgroupId=com.akshiv.ec2`     | This is your Java package name — like a folder structure (used in class names) |
+| `-DartifactId=system-info-app` | This is the name of your project folder (also used to name the `.jar` file)    |
+| `-DarchetypeArtifactId=...`    | Selects the type of project (here, a simple Java app with tests)               |
+| `-DinteractiveMode=false`      | Don’t ask questions; just create the project with defaults                     |
+
+***]
+
+4. Add Dependency & Update Main Class:
+ > Add Joda-Time to pom.xml [Joda-Time is a simple date/time library]
+
+Open the pom.mxl (vi system-info-app/pom.xml)
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.akshiv.ec2</groupId>
+    <artifactId>system-info-app</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>System Info App</name>
+    <description>A simple Java CLI app that prints system info</description>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- Joda-Time -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.10</version>
+        </dependency>
+
+        <!-- JUnit (for test compatibility) -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Shade Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>shaded</shadedClassifierName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.akshiv.ec2.App</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+[***
+
+What this does?
+
+| Section          | Explanation                                             |
+| ---------------- | ------------------------------------------------------- |
+| `<properties>`   | Ensures Java 11 is used to compile your code            |
+| `<dependencies>` | Tells Maven what external libraries your code needs     |
+| `joda-time`      | This library helps print current date/time easily       |
+| `junit`          | Only needed for testing (can remove test files instead) |
+
+***]
+
+5. Edit the Main class (App.java)
+
+ > vi system-info-app/src/main/java/com/akshiv/ec2/App.java
+
+now replace the file with this code:
+
+package com.akshiv.ec2;
+
+import org.joda.time.DateTime;
+
+public class App {
+    public static void main(String[] args) {
+        System.out.println("✅ Deployed Java App on EC2 with Maven!");
+        System.out.println("📅 Current DateTime: " + DateTime.now());
+        System.out.println("🖥️ OS: " + System.getProperty("os.name"));
+        System.out.println("👤 User: " + System.getProperty("user.name"));
+    }
+}
+
+[***
+
+Code Explanation:
+
+| Line                      | What It Does                                        |
+| ------------------------- | --------------------------------------------------- |
+| `package com.akshiv.ec2;` | Declares the class belongs to that folder structure |
+| `import org.joda.time...` | Brings in external library to get current time      |
+| `public class App`        | Main Java class                                     |
+| `main(String[] args)`     | This is the entry point of the app                  |
+| `System.out.println(...)` | Prints text to the terminal                         |
+| `DateTime.now()`          | Gets current date and time (from Joda-Time)         |
+| `System.getProperty(...)` | Reads OS and user details from the system           |
+
+***]
+
+6. Build the Artifact = Build the Application by running the below commands
+
+cd system-info-app
+mvn clean 
+mvn validate
+mvn test
+mvn package
+
+[***
+
+What these does?
+| Command              | Meaning                                                               |
+| -------------------- | --------------------------------------------------------------------- |
+| `cd system-info-app` | Move into your Maven project folder                                   |
+| `mvn clean`          | Deletes old build files (`target/`)                                   |
+| `mvn package`        | Compiles your code, downloads dependencies, and creates a `.jar` file |
+
+***]
+
+✅ When successful, you’ll see:
+[INFO] BUILD SUCCESS
+
+✅ Artifact generated at: [Output file]
+target/system-info-app-1.0-SNAPSHOT.jar
+
+7. Run the Artifact on EC2 - Run the App 
+
+java -jar target/system-info-app-1.0-SNAPSHOT-shaded.jar
+
+[***
+
+What these does:
+| Part                 | Explanation                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `java`               | Java command to run apps                                       |
+| `-cp`                | "Classpath" — tells Java where to find your `.jar` file        |
+| `target/...jar`      | The built artifact created by Maven                            |
+| `com.akshiv.ec2.App` | Fully qualified name of your main class (with `main()` method) |
+
+***]
+
+Output:
+✅ Deployed Java App on EC2 with Maven!
+📅 Current DateTime: 2025-07-31T22:30:45.000+05:30
+🖥️ OS: Linux
+👤 User: ubuntu/root
+
+🎉 You’ve now:
+
+ > Built a Maven Java app
+ > Installed dependencies automatically
+ > Generated a .jar file (artifact)
+ > Ran it on EC2
+
+Summary of the Flow:
+====================
+| Step                    | What You Did             |
+| ----------------------- | ------------------------ |
+| Create Project          | `mvn archetype:generate` |
+| Add Libraries & Java 11 | Updated `pom.xml`        |
+| Wrote Java Code         | Updated `App.java`       |
+| Built App               | `mvn clean package`      |
+| Ran App                 | `java -cp ...` on EC2    |
+| Output Seen             | In EC2 terminal          |
+
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+Building a Java Project using Maven on Amazon Ubuntu:
+=====================================================
+Prerequisites:
+==============
+Before we begin, ensure that you have the following in place:
+
+    An Amazon Web Services (AWS) EC2 instance running Ubuntu.
+    Java Development Kit (JDK) installed on your EC2 instance.
+    Git for version control.
+    A Java project hosted on GitHub. In this I have used the springboot project Source Code.
+
+Steps:
+------
+1. Setting up the EC2 Instance - Amazon Ubuntu - t2.medium - Make sure to open the port number inbetween (8000-9000) - 30Gib
+
+2. Install all the necessary tools like JDK, Maven
+
+	sudo apt update								(Update the Package)
+	sudo su 								(Switch to root user)
+	apt install openjdk-11-jre-headless -y 					(Install JDK 11)
+	apt install maven -y							(Install Maven)
+	git clone https://github.com/Krishpluto/BoardgameListingWebApp.git	(Clone the Java Project repo)
+
+3. Building the Project with Maven
+
+	cd BoardgameListingWebApp/		
+	mvn clean			(Cleans the project by removing the target directory)
+	mvn validate			(Validates the files and folders inside the project)
+	mvn compile			(Compile the Source Code/Project)
+	mvn test			(This will run the test cases)
+	mvn package			(Packages the compiled code into a JAR or WAR file inside the target folder)
+
+4. Check for the Output
+
+	cd target/					(Go inside the target folder)
+	java -jar database_service_project-0.0.1.jar	(execute the jar file)
+
+*** Finally, go inside the browser to access the application (public ip:8080) with the port number.
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
