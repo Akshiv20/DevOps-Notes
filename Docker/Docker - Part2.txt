@@ -1,0 +1,238 @@
+Docker Part-2
+=============
+
+Dockerfile:
+	A Dockerfile is a text file containing instructions to build a Docker image. Each instruction in the file creates a layer in the image, which improves caching and efficiency.
+
+Components:
+-----------
+| Dockerfile Instruction | Purpose                                                   |
+| ---------------------- | --------------------------------------------------------- |
+| `FROM`                 | Sets the base image (e.g., `ubuntu`, `node:18`, `alpine`) |
+| `LABEL`                | Metadata (e.g., maintainer info)                          |
+| `ENV`                  | Set environment variables                                 |
+| `COPY` / `ADD`         | Copy files from host to image                             |
+| `RUN`                  | Run a command in the image at build time                  |
+| `CMD`                  | Default command when the container runs                   |
+| `EXPOSE`               | Inform Docker which port the container listens on         |
+| `WORKDIR`              | Sets the working directory inside the image               |
+| `ENTRYPOINT`           | Sets the fixed entry command                              |
+| `USER`                 | Sets which user runs the container                        |
+
+Scenario 1:
+-----------
+1. We need to create Dockerfile for vim & wget - create a directory (mkdir fileforvim)
+2. Go inside the directory (cd fileforvim)
+3. Now we are going to write our own Dockerfile (vi Dockerfile)
+
+FROM ubuntu
+MAINTAINER Akshiv
+RUN ["apt-get", "update"]
+RUN ["apt-get", "install", "-y", "vim"]
+RUN ["apt-get", "install", "-y", "wget"]
+
+Another method:
+FROM ubuntu
+MAINTAINER Akshiv
+RUN apt-get update
+RUN apt-get install vim -y
+RUN apt-get install wget -y
+
+save it
+{I am mentioning ubuntu as base OS; In real-time the maintainer will be always official email - now we are trying just by giving name; As there is requirement for wget and vim, we are installing it via apt-get}
+
+Scenario 2:
+-----------
+1. Now, we are going to convert this Dockerfile into image (docker build -t [customise name] .) [-t = tagging; customise name [ex: vimimage]; . = present directory [mentioning where the Dockerfile is present]
+2. Now, confirm the image available (docker images)
+
+Scenario 3:
+-----------
+1. We are going to launch our container using this image (docker run -itd --name vimcontainer vimimage) [-p = we will mention -p, if that was an application, as it is a package, there is no need for that]
+2. Check the container availability (docker ps)
+3. Now, we need to execute it (docker exec -it [container id] /bin/bash)
+4. In order to confirm whether vim and wget is installed or not; type vim it will show you the output (:q!); type wget, it will give you output for that package as well.
+5. Exit from the container (exit)
+
+Scenario 4:
+-----------
+1. Now, Developer want GIT into the container; but we should not re-run the vim & wget once again
+2. Open the Dockerfile (vi Dockerfile)
+
+FROM vimimage
+MAINTAINER Akshiv
+RUN ["apt-get", "update"]
+RUN ["apt-get", "install", "-y", "git"]
+
+Another method:
+FROM vimimage
+MAINTAINER Akshiv
+RUN apt-get update
+RUN apt-get install git -y
+
+save it
+{This means, we already got the vimimage with out vim & wget into it; but now we are going to update it with GIT}
+3. Now, we are buiding our image with the same command (docker build -t [customise name] .)
+4. [*** Make sure, we are removing the existing container before running the new one] (docker ps) - (docker rm -f [container id])
+5. Now, run the command for container (docker run -itd --name vimcontainer vimimage) 
+6. Try checking for the packages (docker exec -it [container id] /bin/bash) - type git, vim and wget (one by one) it will provide you the output for all the packages.
+7. Exit from the container (exit)
+
+Scenario 5:
+-----------
+1. Developer is looking permission for the Application on top of the Container.
+2. Come to root path (cd)
+3. Create a Directory (mkdir sshd)
+4. Move inside the Directory (cd sshd)
+5. Open a new Dockerfile, (vi Dockerfile)
+
+FROM ubuntu
+MAINTAINER Akshiv
+RUN apt-get update
+RUN apt-get install vim openssh-server -y
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo 'root:root123' | chpasswd
+RUN mkdir /var/run/sshd
+CMD ["/usr/sbin/sshd", "-D"]
+EXPOSE 22
+
+save it
+{Now, we are going to take ubuntu image; I need to install vim inside the container and on top we need a ssh-server; sed = act like find and replace; -i = to avoid case sensitive; 's = search [by default when we coming into the terminal, it won't allow to login directly as a root user]; PermitRootLogin prohibit-password/PermitRootLogin yes/' = but now I am allowing the permission to login as a root user to the specific path alone [/etc/ssh/sshd_config]; chpasswd = change password [as we don't know the root password, we are providing one {username: root; password: root123}]; mkdir /var/run/sshd = we are creating a directory with specific path [whenever we are trying to bring a package, we need to mention it with the specific directory]; CMD ["/usr/sbin/sshd", "-D"] = this command start the ssh application; EXPOSE 22 = by using this port I am trying to expose.
+6. Now build the Docker image (docker build -t sshdimage:v1.0 .) [In real-time, we will mention the version]
+7. Check for the images (docker images)
+8. Now, we need to launch a container using this image (docker run -itd --name sshdcontainer -p "2323:22" sshdimage:v1.0)
+9. Check about the container status (docker ps)
+10. Now, [Developer side scenario] put the server Public IP on putty, specify the port number which we mentioned for the container (2323); direct login, as we asked the developer to provide the root username and password, now putty will ask for the username: (root); provide password (root123); 
+
+Troubleshooting For Dockerfile:
+===============================
+1. Now, we are trying to launch an Apache container - create a directory from root (mkdir httpd) - move inside the directory (cd httpd):
+
+Scenario 1:
+-----------
+Let's try this scenario, create the (vi Dockerfile)
+
+FROM ubuntu
+MAINTAINER Akshiv
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y apache2
+RUN mkdir /var/run/apache2
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
+ENV APACHE_RUN_DIR /var/run/apache2
+EXPOSE 80
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+Now try to build the image (docker build -t apache2 .) - (docker images) - Now, run the container using the image (docker run -itd --name apache -p "8090:80" apache2)
+Check for the container (docker ps) - but we cannot see the container
+Try checking the container status (docker ps -a) - it will be exited status
+To know the error, go and check the logs; (docker logs [container id])
+
+Now, add the ENV variable under Dockerfile for the user and try to re-run the command for docker image & container [*** Don't forget to remove the existing container]
+
+FROM ubuntu
+MAINTAINER Akshiv
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y apache2
+RUN mkdir /var/run/apache2
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
+ENV APACHE_RUN_DIR /var/run/apache2
+EXPOSE 80
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+Now, try to build the image once again (docker build -t apache2 .)
+Run the container (docker run -itd --name apache -p "8090:80" apache2), [*** make sure to remove the container before running one]
+Try to check the output of the container image on the browser by providing the server Public IP with the port number [ex: 1.1.1.1:8090]
+
+Scenario 2:
+-----------
+1. Developer, is asking permission for the Application path to put his static content [/var/www/html]; now instead of providing permission directly to the path inside the container; we are asking Developer to put the content inside the Host OS path which we are created; and it is directly going to reflect on the application path
+2. Create a Directory on the Host machine putty under root path [mkdir /opt/www]
+3. Bring a sample index.html with some content into it (echo "welcome to docker" > /opt/www/index.html)
+4. Now try to launch a container (docker run -d -p "8085:80" --name=webserver -v "/opt/www:/var/www/html" apache2) [-d = run in background; -v = volume; /opt/www = local directory; /var/www/html = container directory; apache2  = specifying the image name from which the container to be launched]
+5. Check the container up (docker ps)
+6. Check the output on the browser using the server Public Ip with the port number [ex: 1.1.1.1:8085]
+
+Docker Volume:
+==============
+1. Docker volume will act like a backup storage; even though my container got crashed out, we will be able to backup the volume.
+2. Get the commands from this URL: https://docs.docker.com/storage/volumes/
+3. Create volume using this command (docker volume create my-vol)
+4. In order to list the volume (docker volume ls)
+5. To know the exact path, where the volume got created (docker inspect my-vol)
+6. Go inside the path (cd /var/lib/docker/volumes/my-vol/_data)
+7. If we are listing this path, it will be empth (ls -lrt)
+8. Now we are trying to launch a container into it (docker run -d -it --name=akshiv --mount source=my-vol,destination=/usr/local/apache2/htdocs httpd:2.4) [/usr/local/apache2/htdocs=This will act like a backup path; httpd=launching Apache from hub]
+9. Now try to create an empty file (touch test.txt)
+10. Open the container (docker ps)
+11. Now, execute the container with all the changes (docker exec -it [container id] /bin/bash)
+12. Move inside the path (cd htdocs)
+13. Now, list the folder (ls -ltr)
+14. Try to create an empty file inside the container (touch new.txt)
+15. Now, exit from the container (exit)
+16. List inside the local directory (ls -ltr)
+
+Now, we are going to remove the container manually, for checking the status
+1. Remove the container (docker ps) - (docker rm -f [container id]) - recheck the container status (docker ps)
+2. Now list the contents (ls -ltr) [This confirms that Docker volume will help us to back up the data]
+[*** This acts like a two way hand-shake; whatever the changes happened either on local/container this will update the changes. Another advantage is, I can use this volume for multiple containers as well]
+
+How to push our Local Image to Docker Hub?
+Steps:
+1. Move to root path (cd)
+2. Now login to your docker hub (docker login) - give your username and password
+3. Tag your image 1st (docker tag vimimage akshiv/16062021)
+4. Now push the image from local to hub (docker push [tagged name]) [tagged name=akshiv/16062021]
+5. In order, to make this image from public to private - go inside the image - settings - Click on Make private [by making this image as private, we can safeguard our image]
+
+Small Scale and Start-up companies will be saving their private images in Docker Hub
+MNC's who deal with Enterprise level clients will be saving their private images either in Artifactory Jfrog / Nexus.
+
+What if I need to take a complete backup and restore Container?
+1. For backing up the container (docker commit [container id] [new name])
+	[*** This will take the container backup in the format of image]
+2. List the images (docker images)
+3. Now, we are going to convert this image into file format (docker save -o ~/container.tar [new name]) [~ = home directory; container.tar = backing up the file in .tar format]
+4. Now, list the entire files (ls -ltr)
+5. Now, manually delete the image to avoid confusions (docker rmi [image name])
+6. List all the files to get the .tar file name (ls -ltr)
+7. Now, to change this file into an image (docker load -i [file name])
+8. List the images (docker images) [we can see the file into an image]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

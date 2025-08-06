@@ -1,0 +1,131 @@
+So let's start here with the question,
+What is Docker? and why do we need this tool?
+	In simple, Docker is a container technology, A tool for creating and managing containers; 
+
+So what does it mean by Container, and in software development how are we going to use this?
+    In simple terms, A container is considered to be a standardized unit of software (means, A package of code and dependencies to run that code (e.g NodeJS code + the NodeJS runtime)
+The advantage here is, the same container always yields the exact same application and execution behavior! No matter where or by whom it might be executed.
+
+So we can think container as a stand-alone unit to take care of your softwares with the necessary requirements.
+
+Think of the container we use it in our ships, each container is a isolated/independent one, and each container can be build according to our products, at the same time we can import/export things
+
+The same with Docker container, we have a units of softwares, packages, codes and the dependencies to run this code, and we can use it anywhere where docker runs.
+This containers supports to all modern Operating systems, now docker simplifies the creation and mangement of such containers
+
+Why do we need containers in our software development? is this really required?
+    To answer that, let's know the answer for "Why would we want independent, standardized "application packages"? in software development?
+	as we have different development & production environments,  we want to build and test in exactly the same environment as we later run our app in, 
+ simple ex: let's say you created a nodejs application, and you wrote some code there which requires nodejs 14.3 to run successfully; as we already know every version has their own uniques, and changing versions on different enviroments may come up with a lot of issues, (for ex: we has something called "await" this feature works only on nodejs 14.3 or higher), in our real-time situation we have this version properly done on dev/local environment and trying the same with lower version on another environment/remote machine will through as with an error, as we know now, the code works on one environment is not working on the other environment, and to troubleshoot this issue can take some time to figure out and fix it.
+
+but if we are going to use the Docker in our environment is going to bring the same things everywhere (Environment: The runtimes, languages, frameworks, you need for development), 
+
+We want Reliability & reproducible environments, like we want to have the exact same environment for development and production --> this ensures that it works exactly as tested.
+that's where docker containers going to help us, we can lock a specific version into our docker container and therefore we can make sure that our code always executed with that exact version, through this way we can avoid alot of issues happens in our environments.
+
+(2nd ex: let's consider we are working in different development environments within a same team/project, where every team member should have the exactly same environment when working on the same project, now consider I am having older version of nodejs on my system as I haven't updated my system for a while, and another developer got the latest version, hence the code already have the dependencies for the latest version, when the developer share the code with me, that's not going to work due to the older version [people thinks that giving a command to update is not going to take a long time as I already have nodejs on my system; I accept, but still its annoying to do that, because when comes to our real-time work, we do have more complex dependencies and complex application architecture, where we can concentrate more on this one)
+
+by using docker, we got an easy setup to share the common development environment with other employees.
+
+even within our own setup we may have an requirement of working with multiple tasks, where one support for specific version and another may require a different one, now having one system, its not easy for us to bring both the versions, and working with 2 different projects is going to be a hard job, that is where using container helps us, where we don't want to uninstall and re-install the dependencies and runtimes all the time. 
+
+   In simple, Docker is a standardized unit, can be moved, independent from other containers, self-containing.
+
+Difference between VMs and Docker containers?
+
+Virtual machines (VMs) and Docker are both technologies used for virtualization and containerization, but they have different architectures and use cases.
+
+1. **Virtual Machines (VMs)**:
+   - VMs mimic physical computers and run an entire operating system (OS) along with application code on top of a hypervisor.
+   - Each VM includes a full copy of the guest operating system, along with the application, libraries, and binaries.
+   - VMs require a significant amount of system resources (memory, storage, CPU) because they include a full OS.
+   - VMs can run different operating systems on the same physical hardware.
+   - VMs provide strong isolation between applications running on the same physical hardware.
+   - VMs are slower to start up and use more resources compared to containers.
+
+2. **Docker**:
+   - Docker is a platform for developing, shipping, and running applications within containers.
+   - Containers are lightweight, standalone, and executable software packages that include everything needed to run an application: code, runtime, system tools, system libraries, and settings.
+   - Docker containers share the host OS kernel, which makes them much lighter and faster to start compared to VMs.
+   - Docker containers run on Docker Engine, which abstracts the underlying infrastructure and provides a consistent environment for applications.
+   - Docker containers are portable and can run on any system that supports Docker.
+   - Docker provides a way to package and distribute applications along with their dependencies, making it easier to deploy applications consistently across different environments.
+   - Docker containers offer less isolation compared to VMs, but they are generally sufficient for many types of applications.
+
+In summary, VMs provide full isolation and run entire operating systems, while Docker containers are lightweight, share the host OS kernel, and encapsulate individual applications and their dependencies. The choice between VMs and Docker depends on factors such as resource utilization, isolation requirements, portability, and deployment needs.
+
+Docker - Containerization Tool
+
+What does lib (Library) folder/directory contains?
+	This directory contains the common files for all the OS applications.
+
+What is Container?
+	A container is a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another. A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code, runtime, system tools, system libraries and settings.
+
+4 Important terms:
+1. Dockerfile - This contains all the informations in order to host the applications like "src image, dependencies, commands, ports"
+2. Docker Image - Once we build the Docker file, the output will be considered as Docker image.   (BUILD DOCKER FILE) [consider this as AMI]
+3. Docker container - When we are running the Docker image we will get the output and this is called Docker container  (RUN DOCKER IMAGE) [consider this as EC2 server]
+4. Docker Hub - It is considered to be the Centralized repository in order to store the Docker images, this contains all the default docker images + our docker image which we created. (CENTRAL REPOSITORY) [Sign up for Docker hub]
+
+Steps: Sample Docker commands L1
+1. Create 1 ubuntu machine (20.04) - open all ports
+2. Open putty - provide username (ubuntu) - change it to root user (sudo su - root)
+	[*** Linux default package    - 	yum
+	     Ubuntu default package  	- 	apt-get]
+3. Now we need to update all our package (apt-get update)
+4. Now, we need to install docker (apt-get install docker.io) - y
+5. Sign in to your Docker Hub - Search for Apache (httpd) application - copy paste the command on putty (docker pull httpd)
+6. In order to confirm whether the image has downloaded, put command (docker images)
+7. Next, we need to run the image in the container use command (docker run -itd --name apachecontainer -p "8090:80" httpd) [-itd = interactive terminal detatched mode {run this container on the background}; 8090=I want this to be running in this port; but in ubuntu by default it will be running under 80 port, this concept is called "port forwarding"]
+8. Now, in order to know the running containers use command (docker ps)
+9. In order to confirm this via browser, copy paste the public IP with the portnumber [example: 1.1.1.1:8090]; we must get an output {"It works"}
+10. To know the version of the docker, use command (docker version)
+
+[***What is Docker Architecture?
+	Docker uses a client-server architecture. The Docker client talks to the Docker daemon/engine/server, which does the heavy lifting of building, running, and distributing your Docker containers. In other words, we are executing commands from client this gets redirected to server and it will launch the container.]
+
+11. Now, we are trying to get nginx image - give command (docker pull nginx)
+12. Confirm the nginx was installed, using (docker images) command
+13. Now, we are going to create a container using this image; give command (docker run -itd --name nginxcontainer -p "8060:80" nginx)
+14. In order to check whether the container is up; give command (docker ps)
+15. Now confirm the same output, by giving the public IP with the portnumber [example: 1.1.1.1:8060]; we will get the nginx homepage
+16. For stopping the container, we need to provide the command (docker stop [container id]); check (docker ps), this will show only the running container now.
+17. If we need to see both the running as well as the stopped container, then we need to use the command (docker ps -a) [-a = all]
+18. In order to restart the container, give (docker start [container id])
+19. To remove a container [*** we cannot remove a running container, hence stop the container before removing or force remove], give (docker rm [container id]); check the output by giving (docker ps -a), this won't show the removed container in the list
+20. In order to remove the container forecefully give command (docker rm -f [container id]) [-f = force].
+21. Now, if we want to remove the images means give command (docker rmi [image id]) [rmi = remove image; we can even delete multiple images but giving it's id next by next]; give (docker images) to confirm the same.
+
+	[*** If I am trying to re-run the command (docker run -itd --name nginxcontainer -p "8060:80" nginx) what will happen?
+		Docker will look for the image locally, if it is not finding out the image; then it will redirect directly to the hub, and from there it will run the container]
+
+22. In order, to execute to the container, provide command (docker exec -it [container id] /bin/bash) [exec = execute; -it = interact with terminal; using /bin/bash = shell script]
+23. By giving (ls) command, we will be able to list all the default files inside the container.
+24. Give (exit) to come out from the container.
+25. In order, to get the general logs happened inside the container give command (docker logs [container id])
+26. To check the current process inside the container (docker top [container id])
+27. To know the resource utilized by the container (docker stats [container id])
+28. In order, to know the entire information about the container, give command (docker inspect [container id])
+29. To know the general information about the docker machine, give command (docker info)
+
+	[*** In order, to try the same on local windows server: https://hub.docker.com/editions/community/docker-ce-desktop-windows; Get Kitematic for better usage of Docker in windows: https://github.com/docker/kitematic/releases]
+
+Docker for Windows:
+1. Download Kitematic to proceed further
+2. Provide Docker hub username and password - search for the image name - httpd [always advisable to go via official image]
+3. Open cmd - check the docker version (docker version)
+4. Give (docker ps) to view the images available in our Local OS
+5. Now, using the port number try to open it in Browser (localhost:portnumber) [example: localhost:49153], this will provide you the output of the image
+
+
+When my application is running in one environment, and it is facing error in another environment, it is not an issue with Developer side; because he/she cannot develop application according to the environment, hence we are using container, because containers support for all environments according to the application need.
+
+Go on with this link for all the basic commands: https://geekflare.com/docker-commands/
+
+
+
+
+
+
+

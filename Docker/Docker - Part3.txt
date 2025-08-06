@@ -1,0 +1,140 @@
+Docker Part-3
+
+1. Now, we are trying to installing multiple packages inside a container (vim, git)
+(apt-get install vim -y
+apt-get install git -y)
+2. Exit from the container (exit)
+3. Now, next time if I need a container with all this apache, vim and git means; we can change this container into an image (docker commit [container id] [new image name])
+4. List the images (docker images) - it will show the latest image with all the updated packages.
+
+Scenario 1:
+1. Now, we are going to launch a Database container (docker pull mysql) - (docker run -d --name db mysql) [-d = run in background]
+2. Now, listing th container (docker ps) - but the container will not get reflected on the list; How to troubleshoot?
+3. To check all the containers? (docker ps -a)
+4. Check the issue by going through the logs (docker logs [container id]) - this gives us the error like for creating Database we need to setup secret credentials like username/password
+[error: database is uninitialized and password option is not specified
+  You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ALLOW_EMPTY_PASSWORD and MYSQL_RANDOM_ROOT_PASSWORD]
+[docker container prune = this will delete the stopped containers]
+5. Now, try to re-run the command with the secret credentials into it (docker run -d --name db -e MYSQL_ROOT_PASSWORD=akshiv123 mysql:5.5)
+6. Check the status of the docker container (docker ps)
+
+Scenario 2:
+1. Now, we are going to bring communication between 2 different container [1. mysql database is going to communicate to 2. Wordpress Application]
+2. Use this commands, (docker run -d --name myweb-server --link db:mysql -p "8060:80" wordpress) [myweb-server = container name; mysql = variable name]
+3. Open the public IP of the server with the port number [ex:1.1.1.1:8060]; this gives the output of the WordPress.
+
+Scenario 3:
+How to customize the Public Image from Docker Hub
+1. Create a Directory from root path (mkdir mynginx)
+2. Go inside the directory (cd mynginx)
+3. Now, right a Dockerfile (vi Dockerfile)
+[FROM nginx
+MAINTAINER Akshiv
+WORKDIR /usr/share/nginx/html
+COPY index.html /usr/share/nginx/html]
+4. Create a sample index.html with some content into it (vi index.html)
+5. Now, build the Dockerfile (docker build -t mynginx .)
+6. We need to launch the container (docker run -itd --name mynginx -p "8040:80" mynginx)
+7. Confirm our container is running (docker ps)
+8. Now, confirm the same by checking the output via browser [ex:1.1.1.1:8040]
+
+Scenario 4:
+Developer need access only for the logs path for apache; hence we are going to open a port under Host OS, and by launching a sample container and re-directing the path using volume-from, we can provide access only for the specific content.
+1. Already we got Apache and SSHD images
+2. Now, by using the image we are going to launch the apache container (docker run -d -p "8090:80" -v /var/log/apache2 --name=webserver1 apache2) [-v = volume; webserver1 = container name; apache2 = image name]
+3. Check the container status (docker ps)
+4. Confirm the output using public IP address with the port number [ex:1.1.1.1:8090]
+5. Now, Apache container got working; we need to turn on another container (docker run -d -p "2222:22" --volumes-from=webserver1 sshdimage:v1.0)
+6. Check the container status (docker ps)
+7. Now, on Developer side; Open putty - provide the public IP - change the port number "2222" - provide username "root" - Password "root123" - Now go inside the path (cd /var/log/apache2) [because according to our scenario, we Developer asked permission only for this path] - list the content (ls -ltr) - now try to go inside the access.log (tail -1000f access.log)
+
+How to know the Container IP? 
+docker ps
+docker inspect [container id] = this will give you the complete information about the container
+
+Scenario 5:
+Now we are going to see about Docker Network
+1. Give command (docker network ls)
+2. If we are specifying a container without network, then by default it will come under bridge network, hence this is considered to be a default docker network
+3. In order to confirm this give (docker network inspect [container id])
+[*** Bridge Network is completely different network for you Host OS and Container, that is the reason we are able to host multiple applications under 80 port]
+	{To know more about Docker Networking concept, go on with the following link: ostechnix.com/explaining-docker-networking-concepts}
+4. Now, I am trying to launch 2 different container (docker run -it -d --name c1 alpine) (docker run -it -d --name c2 alpine)
+5. Now, give (docker inspect c1) (docker inspect c2) - to know the ip address
+6. Now, I am trying to ping 2nd container from the login inside the 1st one (docker exec -it c1 sh) - ping [2nd container ip] - [* it will ping as it is under the same network]
+7. Exit from the container (exit)
+8. Now, we are trying to create our own customised network (docker network create --driver bridge akshiv_net)
+9. List all the networks (docker network ls)
+10. Now, we are trying to launch container under own customised network (docker run -it -d --name A1 --network akshiv_net alpine) (docker run -it -d --name A2 --network akshiv_net alpine)
+11. We are tyring to exec the container (docker exec -it A1 sh)
+12. Now, I am trying to communicate to my 2nd container by pinging from the 1st container (ping A2)
+13. Now, we are trying to launch 2 different applications under same port in Host OS (docker run -itd --network host --name hostcont1 nginx) [host= network name; hostcont1= container name]
+14. We are trying to host another application httpd, on the same port under Host OS (docker run -itd --network host --name hostcont2 httpd)
+15. Try to check the status of the containers (docker ps) - [we can see that httpd has not launched, as we know we cannot launch 2 different applications on same port; either we can stop one application and start another one or we can launch this application on another container/different network]
+
+Docker Compose:
+1. Instead of running different commands for each activity, we can write all the commands under single .yaml file; by running this script we will be able to do multiple activity in one shot.
+2. Search on google for Docker compose ubuntu install - select the official document - Select linux - copy the command under it (DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+mkdir -p $DOCKER_CONFIG/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose - apt install docker-compose -y - chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose)
+3. Check the version (docker-compose version)
+4. Now, create a docker compose file (vi docker-compose.yaml) - When we are trying for direct .yaml (we may get syntax error) hence we are trying to create it into a .txt file (vi docker-compose.txt)
+[version: "3"
+services: #global value
+   database:
+       image: mysql:5.7
+       volumes:
+       - ./data:/var/lib/mysql
+       environment:
+           MYSQL_ROOT_PASSWORD: somewordpress
+           MYSQL_DATABASE: wordpress
+           MYSQL_USER: wordpress
+           MYSQL_PASSWORD: wordpress
+   wordpress:
+        image: wordpress
+        depends_on:
+        - database
+        ports:
+        - "8080:80"
+        restart: always
+        environment:
+            WORDPRESS_DB_HOST: database:3306
+            WORDPRESS_DB_USER: wordpress
+            WORDPRESS_DB_PASSWORD: wordpress
+            WORDPRESS_DB_NAME: wordpress]
+5. Move this file from .txt to .yaml (mv docker-compose.txt docker-compose.yaml)
+6. Now, we are trying to execute the command the (docker-compose up)
+7. To confirm the same, (docker-compose ps); this will show the output for both the application as well as the database into it.
+
+Interview Questions:
+1. What is difference between copy and add in docker file?
+2. Difference between ENV and ARG in docker file?
+3. what is difference between run and cmd?
+4. why should I go for Docker volume?
+5. How to share docker data in multiple container?
+6. Do you have exerpience in writing Dockerfile?
+7. where will you push you docker image?
+8. docker attach?
+9. How will you push your docker image into docker hub?
+10. How to add volumes into running container?
+11. can I limit the file size/CPU utiliztion for a docker in my machine?
+12. Docker network difference/advantage - host, bridge and none?
+13. best practise for writing docker file?
+
+Tasks:
+What is Docker Swarm? Kubernetes?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
