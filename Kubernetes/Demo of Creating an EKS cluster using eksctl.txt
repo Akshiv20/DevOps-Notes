@@ -1,0 +1,155 @@
+Demo: Create an EKS Cluster with eksctl:
+========================================
+Prerequisites:
+1. An AWS account with permissions to create EKS clusters (IAM + EC2 + VPC + CloudFormation)
+2. aws CLI configured (aws configure) with credentials for the account/region
+3. eksctl installed
+4. kubectl installed and in PATH. kubectl version should be within one minor version of the cluster
+
+[Optional but recommended) helm for installing ingress controllers or other add-ons.
+
+Quick verification commands (run before starting the cluster demo)
+ > aws sts get-caller-identity — verifies AWS credentials.
+ > eksctl version — verifies eksctl.
+ > kubectl version --client — verifies kubectl.
+
+Steps:
+------
+1. Open CloudShell from the AWS dashboard - and install the eksctl
+
+2. Download the latest eksctl binary: curl --silent --location "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" -o eksctl.tar.gz
+
+3. Extract the binary: tar -xzf eksctl.tar.gz
+
+4. Move eksctl to the directory in your PATH: sudo mv eksctl /usr/local/bin
+
+5. Verify installation: eksctl version
+
+6. Make sure kubectl is installed: kubectl version --client
+
+7. Make sure AWS CLI is working: aws sts get-caller-identity
+[This confirms CloudShell is authenticated to your AWS account.
+Output will include your Account ID, ARN, and User ID]
+
+8. Once eksctl is installed, you can create you EKS cluster with:
+
+eksctl create cluster \
+  --name demo-cluster \
+  --region us-east-2 \
+  --nodegroup-name demo-nodes \
+  --node-type t3.medium \
+  --nodes 2
+
+Explanation:
+
+| Part                          | Meaning                                  |
+| ----------------------------- | ---------------------------------------- |
+| `eksctl create cluster`       | Tells eksctl to create a new EKS cluster |
+| `--name demo-cluster`         | Name of your Kubernetes cluster          |
+| `--region us-east-1`          | AWS region to deploy to                  |
+| `--nodegroup-name demo-nodes` | Logical group name for the worker nodes  |
+| `--node-type t3.medium`       | EC2 instance type for each worker node   |
+| `--nodes 2`                   | Number of worker nodes in the group      |
+
+[*** make sure this will take time to complete the process might take few minutes also]
+
+9. now, confirm the same by running command: kubectl get nodes [we can see 2 nodes has been created]
+
+10. Make sure to delete once after deleting this resource: eksctl delete cluster --name demo-cluster --region us-east-2
+
+What happens when you run this:
+-------------------------------
+1. eksctl will:
+ > Delete the EKS control plane.
+ > Terminate all worker nodes (EC2 instances).
+ > Remove the Auto Scaling Group.
+ > Delete the VPC, subnets, route tables, Internet/NAT gateways it created.
+ > Remove IAM roles and security groups linked to the cluster.
+
+2. The process takes 10–15 minutes because AWS needs to clean up networking and EC2 resources.
+
+FYI***:
+=======
+When we are creating EKS cluster using eksctl, there are a lot resources will get created in our AWS account; here are the lists
+
+1. Control Plane (Managed by AWS)
+These components are invisible to you in terms of infrastructure (AWS manages them), but are still part of what you “get” when creating a cluster.
+ > Kubernetes API server – Handles all kubectl commands.
+ > etcd – Stores cluster state and configuration.
+ > Controller Manager – Runs background tasks (e.g., deployments, scaling).
+ > Scheduler – Decides which node runs which pod.
+
+📌 Important: The control plane does not run on your EC2 nodes — it’s fully managed and highly available in AWS.
+
+2. AWS Infrastructure Resources Created by eksctl
+When eksctl create cluster runs, it talks to AWS APIs and provisions:
+
+a) VPC & Networking
+ > VPC – Virtual Private Cloud to isolate your cluster.
+ > Subnets – Usually 2–3 private subnets and 2–3 public subnets.
+ > Internet Gateway – Allows resources in public subnets to access the internet.
+ > NAT Gateway – Allows resources in private subnets to reach the internet.
+ > Route Tables – Direct network traffic inside the VPC.
+
+Why: Your worker nodes and pods need network connectivity.
+
+b) IAM Roles & Policies
+ > EKS Cluster Role – Gives the control plane permissions to manage AWS resources.
+ > Node Instance Role – Attached to EC2 nodes for pulling images from ECR, writing to CloudWatch logs, etc.
+
+Optional: Additional IAM roles for add-ons (like AWS Load Balancer Controller, EBS CSI Driver).
+
+c) Security Groups
+ > Cluster Security Group – Controls access to the EKS control plane.
+ > Node Security Group – Controls traffic between nodes and from nodes to the control plane.
+
+d) EC2 Worker Nodes
+ > Auto Scaling Group (ASG) – A group of EC2 instances that act as Kubernetes worker nodes.
+ > Launch Template – Defines the AMI, instance type, and config for these nodes.
+ > Amazon EKS-Optimized AMI – Pre-installed with kubelet and containerd.
+
+e) EKS Cluster Object
+ > The logical EKS cluster itself (shown in AWS Console → EKS).
+ > Contains the endpoint for your kubectl commands.
+
+f) Add-ons
+By default, EKS installs some Kubernetes system add-ons:
+ > CoreDNS – Internal DNS for pods and services.
+ > kube-proxy – Handles pod-to-pod networking.
+ > Amazon VPC CNI Plugin – Allows pods to get IP addresses from your VPC.
+
+In Real-life:
+-------------
+When you say “create a cluster” in eksctl, you’re not just creating Kubernetes — you’re also spinning up:
+
+ > A mini data center (VPC, networking)
+ > A team of servers (EC2 nodes)
+ > Security guards (Security Groups, IAM)
+ > And managers (control plane services) — all talking to each other.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
