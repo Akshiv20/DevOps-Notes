@@ -1,0 +1,215 @@
+Kubernetes Part 2:
+
+We can create our k8's cluster on 4 different ways:
+1. Kubeadm - This method will be mostly used when our k8's is running under on-premises
+2. KOPS - If it is going to be on cloud we are going to prefer this method
+3. kubespray
+4. Minikube - This won't be highly used on real-time basis (why: when we are under dev env or when we are trying it for our testing purpose then we can use this; but mostly in companies we are going to work for our clients, hence this won't be a suggested method)
+
+Kubernetes can be managed via 2 different ways
+1. Privately managed - end to end set-up by our own
+2. Cloud providers managed - maximum of the work will be done by them, like managing the kubernetes cluster. ex:
+AWS - EKS (Amazon Elastic Kubernetes Service) 
+Azure - AKS (Azure Kubernetes service)
+GCP - GKE (Google Kubernetes Engine)
+
+Kubeadm: Cluster Installation
+Here we are going to do the entire set-up on our own using kubeadm
+The base for this is Docker, as this is called as container orchestration
+Search in google for (kubernetes cluster creation using kubeadm) this will directly take you to the kubernetes official page (kubernetes.io) (https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/)
+
+Steps:
+1. Create 2 different ec2 server (ubuntu 20.04) - (t2.medium) [master needs to be on t2.medium; maybe you can keep the slave on t2.micro].
+[***FYI: What is Control Plane? We will call Master machine like this]
+
+2. Open both the server for cluster connection - switch as root user (sudo su -) on both the machines
+
+3. The 1st step we need to do is to bring docker for container setup - add the key on both the machines (curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -); you need to get the output as ["OK"]
+
+4. Now we are going to bring docker registry via repository on both the machines (sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable")
+
+5. Make sure to update the ubuntu package once after this step, as there will be a lot of new plugins has been added (sudo apt-get update)
+
+6. Now, install the docker on both the machines (sudo apt-get install docker.io -y)
+	[Mostly, in real-time they are going to prefer for the particular version, if they haven't mentioned anything we can download docker directly by giving (sudo apt-get install docker -y) - this is going to download the latest version of the docker] - now confirm the version (docker version)
+
+	We can hold even to a particular version (ce = community edition) - while doing general update except this content others will get updated (sudo apt-mark hold docker-ce)
+
+8. We need to confirm the status of the docker before proceeding with k8's (sudo systemctl status docker)
+
+9. Update the apt package index and install packages needed to use the Kubernetes apt repository (sudo apt-get update) (sudo apt-get install -y apt-transport-https ca-certificates curl gpg)
+
+10. Download the public signing key for the Kubernetes package repositories
+(curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg)
+
+11. Add the appropriate Kubernetes apt repository (echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list)
+
+12. Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version (sudo apt-get update) (sudo apt-get install -y kubelet kubeadm kubectl) 
+
+13. Same like docker we need to hold all these contents on both the machines (sudo apt-mark hold kubelet kubeadm kubectl)
+
+14. The next step, is to create a network on the master machine for further communications with the nodes (sudo kubeadm init --pod-network-cidr=10.244.0.0/16) [this may take a while] (make sure to copy the kubeadm token for the same future purpose)
+
+=======================================================================================================
+{sometimes, we may face an error because of the different versions we are using, try to follow this steps in order to reconfigure the setup}
+--- First, reset your kubeadm cluster by running the reset command and flush your iptables (to avoid any networking issue) kubeadm reset -f 
+iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+
+--- Second, you need to change your Docker cgroup driver to systemd (recommended CRI conf for kubernetes kubelet by default) then restart docker service by using this command
+
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+systemctl daemon-reload
+systemctl restart docker
+
+--- Finally you need to turn swapoff and restart and enable kubelet services
+
+swapoff -a
+systemctl start kubelet  
+
+=================================================================================================================
+then try running the same command (sudo kubeadm init --pod-network-cidr=10.244.0.0/16)
+
+15. Normally, we will create a specific user in order to do the work, but for testing purpose we are going to proceed as the root user, 
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+16. now, you can list the file (ls -lrta)
+
+17. you can see (.kube) directory - go inside that (cd .kube)
+
+18. you can list (ls -ltr), you can see a (config) file inside that, if you are going to open this file (vi config) [entire cluster configuration informations will be there, without this file we will not be able to communicate with the cluster]
+
+19. Now, copy the kubeadm token command from master, and join it to worker node [do it on the slave machine]
+[command example: kubeadm join 172.31.24.229:6443 --token 6m5tqp.f0sf9sbejh176bk5 \
+        --discovery-token-ca-cert-hash sha256:96290dc0e91d839da9e44c76d2390fd572bc6105da4d8b67074c248ea3cdfc6e]
+================================================================================================================
+{*** If you are facing the error, then follow the same step}
+--- First, reset your kubeadm cluster by running the reset command and flush your iptables (to avoid any networking issue) kubeadm reset -f 
+iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+
+--- Second, you need to change your Docker cgroup driver to systemd (recommended CRI conf for kubernetes kubelet by default) then restart docker service by using this command
+
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+systemctl daemon-reload
+systemctl restart docker
+
+--- Finally you need to turn swapoff and restart and enable kubelet services
+
+swapoff -a
+systemctl start kubelet  
+=================================================================================================================
+then try to join once again (kubeadm join 172.31.24.229:6443 --token 6m5tqp.f0sf9sbejh176bk5 \
+        --discovery-token-ca-cert-hash sha256:96290dc0e91d839da9e44c76d2390fd572bc6105da4d8b67074c248ea3cdfc6e)
+[You need to run this token on all the worker node which you would like to add]
+{***FYI: In that command, we can see a token generated; this will be valid only for 23hours}
+
+Task:
+What is procedure to generate token for future purpose?
+kubeadm token create --print-join-command
+
+20. now, run this command (kubectl get nodes) on your master machine to confirm about the joining
+
+If you are facing an issue while trying to connect, like API error make sure to run the below commands
+(sudo systemctl status kubelet) check the status and make sure it is running
+(sudo systemctl restart kubelet) restart the kubectl; wait for 10-20 seconds
+(sudo ss -tuln | grep 6443) check if API port 6443 is open now
+[output: tcp   LISTEN 0      4096                   *:6443             *:*]
+
+21. even though both the machines got joined the status is (not ready) [this is because the dns is not yet configured]
+
+Task:
+-----
+22. we need to setup the cluster network for in-order to run the status [currently it is in pending status]
+
+23. go to google, search for (https://kubernetes.io/docs/concepts/cluster-administration/addons/) - it will take to the official kubernetes page - we can see there are more number of networking types under the list- here we are going to choose (flannel) [because many successful reports done with the kubernetes setup by using this method]
+
+24. now, we are going to bring this flannel network setup on our master machine, run this command (kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml) [this command will be available on the flannel document]
+
+25. now give the command (kubectl get pods --all-namespaces) - as we can see the status changed to ready.
+
+26. run command (kubectl get nodes) - we will be able to see the dns came to running status.
+
+27. to check your version (kubectl version)
+
+KOPS: Cluster Installation
+1. create 1 ubuntu machine (20.04) - t2.micro
+2. open putty - switch to root user (sudo su -)
+3. we need to install kops binaries from kubernetes official page (curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64) [by default all our setup files will be presented inside our binary files]
+4. then we are providing the exe permission to the kops file (chmod +x ./kops)
+5. we are going to move this to the bin location (sudo mv ./kops /usr/local/bin/) [/usr/local/bin/ is the default location where our binary/exe files will be presented]
+6. now we are trying to download the kubectl binary file using curl (curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl)
+7. then we are providing the exe permission to the kubectl file (chmod +x ./kubectl)
+8. we are going to move this to the bin location (sudo mv ./kubectl /usr/local/bin/kubectl)
+9. now, I am trying to access this by a specific user, hence we are creating a user in IAM (only programatic access is enough) - admistrator permission (real-time the permissions will be different)
+10. when we are giving (aws configure) - we are getting an error msg that cli is missing, hence we need to install it - 1st update (apt-get update) - now install cli (apt install awscli)
+[*** In ubuntu machine, cli is not pre-installed]
+11. now configure the user, with all the credentials
+12. we need to export the access key and secret access key as variable for kops further communications [as we cannot provide this information's maually all the time]
+
+export AWS_ACCESS_KEY_ID=(copy paste access key)
+export AWS_SECRET_ACCESS_KEY=(copy paste secret access key)
+
+13. now, we are going to setup cluster with multi-node; before doing this we need to make sure the kubernetes state file are available on the s3 bucket [this is mandatory step for kops], give command (aws s3 mb s3://may2k24 --region us-east-2) - confirm the same on the s3 bucket
+14. we need to enable versioning for this bucket - (aws s3api put-bucket-versioning --bucket may2k24  --versioning-configuration Status=Enabled) [there may be permission denied, due to recent update - if so, then update the bucket versioning manually - open the bucket - properties - enable versioning]
+[hereafter, all our kubernetes setup files, config files, state files everything will get saved on this s3 bucket for backend purpose]
+15. we are going to create a separate authentication for communication in-between master to worker node - to do this give command (ssh-keygen) - now we will get public and private key; henceforth we are going to use only this for further communications. [click enter wherever it is asking for location]
+16. next step we are going to create a cluster, this can be done by 2 different ways [1. normal way, we need domain name for connection; 2. gossip-based cluster, don't require a register domain, we can use dummy domains for that - and this needs to ends with (prefix name.k8s.local) prefix can be any name]
+17. give command (export NAME=shiv.k8s.local) - once the cluster got created we need to mention the location where the state file needs to be saved (export KOPS_STATE_STORE=s3://may2k24)
+18. we need to create our cluster now, using this command (kops create cluster --zones us-east-2a ${NAME}) [This entire setup with take atleast 5 - 7 mins to get created]
+19. now we need to update the content - give command (kops update cluster --name shiv.k8s.local --yes --admin)
+[after these commands we are going to get some suggestion, please follow; ex: we need to validate this only after 10m if time; and they will provide with the ssh key for future communication, copy paste those contents on a notepad]
+20. after sometime, we can validate the cluster using the command (kops validate cluster) - once it got successful, we will be able to see 1 master and 1 node got created [but we haven't mention this anywhere, by default this is how it is going to get created] - but if you would like to edit, then on the suggestions itself they have provided with the necessary commands like, (kops edit ig --name=shiv.k8s.local master-us-east-2a) [this command is for master edit] (kops edit ig --name=shiv.k8s.local nodes-us-east-2a) [this is for node edit] (kops edit cluster shiv.k8s.local) [this is for cluster edit]
+
+Task:
+Try changing the node size, update and check for the output.
+
+21. check the s3 bucket for state files, this will create load balancer, auto-scaling [by default this is providing our cluster setup with high- availability]
+22. As we know that we created an instance and did all this process; that instance are called as (client machine) - henceforth I am going to do all the activity by using this client machine only by using ssh, we are not going to touch our master/node anywhere.
+23. by giving this command (kubectl get nodes) - we can see both our nodes master as well as worker
+
+24. now, we are going to switch from client machine to master node - give command (ssh -i ~/.ssh/id_rsa ubuntu@[master node public ip]
+
+[***FYI: We can stop this temporarily also, as we are going to use this repeatedly - go to autoscaling - edit change all the capacity to "0" - save, do the same for both master and worker, so that we can run accordingly; stop the client machine for time-being]
+
+In real-time we will do the setup by using ansible, as we are going to have a lot of machines in our env., search in google for (kubernetes installation using ansible).
+
+
+IAM User Credentials:
+Console access:
+URL: https://137871292527.signin.aws.amazon.com/console
+Username: kops-user
+Password: akshiv@123
+
+CLI access:
+Access Key ID: AKIASAGOE7BX2WLVBZ3X
+Secret access key: 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
+
+cluster deletion: kops delete cluster shiv.k8s.local --yes
+
+
+
+
+
+

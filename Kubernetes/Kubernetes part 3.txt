@@ -1,0 +1,148 @@
+Kubernetes Part 3:
+
+How to generate new token?
+Ans: kubeadm token create --print-join-command
+
+what is pod?
+	functional unit of container, this holds more containers into it.
+Task:
+Is is possible to create empty pod?
+Pod can be empty or not?
+
+Definition of pod
+	An abstraction layer that represents the group of containers that are deployed together on the same Host/Node, It is used to manage the applications. 
+
+The suggested structure for Production environment is always keeping one container inside one pod, because if my pod is going to get failed - if I am holding multiple containers inside a single pod then the impact of the failure will be very huge. But, we can keep any number of pods inside a single node as the node failure will be a rare scenario one.
+
+pod requirements:
+1. pod.yml [name can be customizable] - this is going to hold the descriptions of the pod details
+[***FYI: mostly the pod failure will happen, because of the space issue, whenever we are going to setup the pod, make sure the size of the containers, number of containers, what kind of applications are going to involved within this, and how many features are going to get involved, database requirements etc.,]
+2. this .yaml/json script is going to run via kubectl command - and this is going to hit the API server - scheduler will be taking charge from here for creating - and controller manager is going to manage the process.
+[***FYI: mostly we need to specify, under which pod the creation need to taken place, if we are having multiple pods; if incase we haven't specified anything means, then controller manager is going to check which pod is free with more space, there it will assign the scheduler to create the pod -- in real-time, this will be specified clearly]
+
+ > A Pod is the smallest unit in Kubernetes.
+ > It runs one or more containers (like Docker containers) together.
+ > All containers inside a pod share:
+	. Same IP address
+	. Same storage
+	. Same network
+ > Pods are temporary. If a pod dies, Kubernetes might create a new pod — but not the same pod.
+Real-time example:
+You want to run an app — like an Nginx web server — inside a pod.
+
+Netwkorking in Pods:
+Only via enabling network, we can bring connection inbetween the pods and the containers, as we are going to run multiple features of an application under a single node we need to bring connections.
+In real-time, there is a lot communication needs to be taken places, for example, in-between container - container; pod - pod; node - node etc., hence to make this possible we need to bring the connection via network only.
+ > Kubernetes assigns an IP address to every pod.
+ > All pods can talk to each other directly using their IPs.
+ > For external access, you use:
+	. Services (ClusterIP, NodePort, LoadBalancer)
+ > CNI Plugin (like Flannel or Calico) sets up the pod network.
+Real-time example:
+Your frontend app in one pod talks to a backend service in another pod over the network.
+
+Replicaset: (clone/mirror)
+   This helps us to manage the activity that is going to happen inside the pods, this is not a mandatory thing to enable, but if you are going to enable - it help for better management.
+Every Replicaset is going to have desired number and current number
+If incase the desired number is not = to current number, then it is going to recreate it.
+
+ > A ReplicaSet ensures a certain number of pods are always running.
+ > If a pod crashes, ReplicaSet creates a new one automatically.
+ > It's like a bodyguard for your pods — keeps them alive!
+Real-time example:
+You want always 3 pods of your app running (for high availability).
+
+Daemonset: 
+   Daemonset is going to concentrate on Node level, this is mainly going to concentrate on Infrastructure, Atleast 1 daemonset is required. The main job of this is to collect logs from all the nodes and it is going to foward to the log analysis tool.
+Rule:
+Atleast one Daemonset is mandatory for one node
+ > A DaemonSet ensures one copy of a pod runs on every node (machine) in the cluster.
+ > Useful for background tasks like logging, monitoring, or networking.
+Real-time example:
+You want one pod per node to collect logs (example: Fluentd).
+
+Deployment:
+ > A Deployment manages ReplicaSets and Pods.
+ > It allows you to:
+	. Create pods and ReplicaSets
+	. Update apps without downtime (rolling updates)
+	. Rollback if something goes wrong
+ > Deployment is the most common object you’ll use.
+Real-time example:
+You want to upgrade your app from version 1.0 to 2.0 smoothly.
+
+What If my entire Machine gone down?
+What Replicaset is going to do and Daemonset is going to do?
+
+Task:
+What is Replication Controller is doing? and how it is different from Replicaset? 
+[***FYI: We don't use this anymore]
+
+Line-by-Line Explanation:
+
+apiVersion: apps/v1        # Version of Kubernetes API you're using
+kind: Deployment           # Type of object: Deployment
+metadata:                  # Metadata about the object
+  name: nginx-deployment   # Name of the Deployment
+  labels:                  # Labels for the Deployment
+    app: nginx
+spec:                      # Specification of what you want
+  replicas: 3              # How many pods you want
+  selector:                # How to identify pods managed by this Deployment
+    matchLabels:
+      app: nginx
+  template:                # Blueprint for the pods
+    metadata:
+      labels:              # Labels for each pod
+        app: nginx
+    spec:                  # What containers to run inside each pod
+      containers:
+      - name: nginx        # Container name
+        image: nginx:latest # Container image
+        ports:
+        - containerPort: 80 # Port container listens on
+
+Line-by-Line Simple Meaning:
+----------------------------
+| Line                     | Meaning                                                    |
+| :----------------------- | :--------------------------------------------------------- |
+| `apiVersion: apps/v1`    | We are using version `apps/v1` for Deployments.            |
+| `kind: Deployment`       | We are creating a **Deployment**.                          |
+| `metadata:`              | General information about the Deployment.                  |
+| `name: nginx-deployment` | Name it `nginx-deployment`.                                |
+| `labels:`                | Key-value pairs to organize and select resources easily.   |
+| `app: nginx`             | Label saying "this is part of nginx app".                  |
+| `spec:`                  | The actual instructions/specifications.                    |
+| `replicas: 3`            | Create 3 identical Pods.                                   |
+| `selector:`              | How Kubernetes finds which pods belong to this Deployment. |
+| `matchLabels:`           | Find pods with label `app=nginx`.                          |
+| `template:`              | Pod template: How each pod should look.                    |
+| `metadata:`              | Metadata for each pod.                                     |
+| `labels:`                | Label for each pod (`app=nginx`).                          |
+| `spec:`                  | Inside the pod — what containers to run.                   |
+| `containers:`            | List of containers inside pod.                             |
+| `- name: nginx`          | Container name is `nginx`.                                 |
+| `image: nginx:latest`    | Pull Docker image `nginx:latest` from DockerHub.           |
+| `ports:`                 | What port the container exposes inside the pod.            |
+| `containerPort: 80`      | Container listens on port `80`.                            |
+
+Important Tips:
+---------------
+ > Always start with Deployment, not ReplicaSet directly (Deployment auto-creates ReplicaSet).
+ > Flannel/Calico must be installed for networking.
+ > Use kubectl apply -f yourfile.yaml to create resources.
+ > Services (ClusterIP, NodePort, LoadBalancer) are needed to expose your pods.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

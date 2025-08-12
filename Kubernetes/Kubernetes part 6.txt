@@ -1,0 +1,194 @@
+Kubernetes Part 6:
+
+By using services, we are going to expose our application to the public.
+
+1. Start the client machine; go to autoscaling and change the desired, min & max value of master (1) - worker (2)
+2. open the client machine on putty - change as root user (sudo su -)
+3. give command (kubectl get pods) & (kubectl get nodes) and make sure the connection is working fine, inbetween them [if not make a new connection]
+4. create a directory (mkdir services) - go inside the directory (cd services) - now create a file (vi nodeport.txt) and copy paste the script; rename the file (mv nodeport.txt nodeport.yaml)
+
+NodePort --- nodeip:nodeport -- 30,000 - 32767
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeport-svc
+spec:
+   selector:
+     app: webapps
+   ports:
+      - name: http
+        port: 80
+        nodeport: 32000
+
+   type: NodePort
+---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: nodeport-pod
+   labels:
+     app: webapps
+spec:
+   containers:
+   - name: pod1
+     image: nginx
+     ports:
+       - containerPort: 80
+
+[I am specifying the version; we are going to use service here hence gave kind as service; under metadata we provide we the name for identification purpose; I am trying to expose the backend port on http with 80, as we are going to get the request from either from "http" or "https" {in real-time this will decided according to the scenario; for time being we are using "http"}, and using default nodeport number; under type, I am mentioning what type of service I am using here we are using NodePort]
+[next, we are creating a pod, with the container]
+[*** for services we are going to use the selector; and for pod creation we are using labels --- this acts like a key value pair; the name should match for the selector and label only then it is going to route the traffic properly from service to pod]
+
+5. now apply the command (kubectl apply -f nodeport.yaml --validate=false) [as I am using previous version of k8s, I am trying to avoid to validation]
+6. give command, (kubectl get svc) - to confirm the service running
+7. in order to know under which node this one got deployed, we need to give the following command (kubectl get pods -o wide)
+8. we can get the node Ip, copy the public ip and open on the browser with the nodeport number (ex: 1.1.1.1:32000) [but we will be getting the error, why?]
+9. check the SG of the node, as we can see only under specific SG this node got opened, hence provide the All TCP and update the SG for the specific node; then check for the output. [we will get the nginx page]
+
+ClusterIP:
+Pod to Pod internal communication
+This is actually default service of kubernetes. whenever you are trying to create a pod, it will come under clusterip service only
+
+1. create a file (vi clusterip.txt), copy paste the file, and rename it (mv clusterip.txt clusterip.yaml)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.13.12
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clusterip-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: nginx-app
+
+2. now apply the command (kubectl apply -f clusterip.yaml)
+3. search for all the services (kubectl get svc), now we can confirm the clusterip got into the list
+4. give (kubectl get pods), we can see the nginx-deployment pod on the list
+5. I am going inside the pod, by giving command (kubectl exec -it [pod name] bash) 
+6. we are going to check the connection inside this, (curl http://[clusterip address]:80) [ex: 100.71.140.56:80] - now we are getting an error msg like (curl: command not found) - hence we are trying to get the package, but before that we need to update it (apt-get update) - then give (apt install curl -y) - now try to ping the clusterip (curl http://100.71.140.56:80) [now we can get the output of the nginx app which we installed]
+
+LoadBalancer:
+if we are going to check in the AWS-load balancer, there will be only one load balancer, that was already created by the kubernetes.
+
+1. create a file (vi loadbalancer.txt), copy paste the file, and rename it (mv loadbalancer.txt loadbalancer.yaml)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadbalancer-pod
+spec:
+  selector:
+    matchLabels:
+      app: hello
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: hello
+        image: httpd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hello
+  name: loadbalancer-svc
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+  selector:
+    app: hello
+
+2. now apply the command (kubectl apply -f loadbalancer.yaml)
+3. search for all the services (kubectl get svc), now we can confirm the loadbalancer came inside the list [*** it may take sometime to create also]
+4. now go to the aws-loadbalancer, we can see a new lb got created
+5. copy paste the dns name and check for the output in the browser, give (kubectl get pods); we can see the loadbalancer pod on the list, now try to execute (kubectl exec -it [pod name] bash) - (cd htdocs) - (cat index.html)
+6. give command (kubectl get pods -o wide), to know the machine Ip; now open the public ip of the node and open it on the browser with the port number [ex:3.135.201.213:31958], to confirm the output.
+
+[*** what is the disadvantage of using LB?
+   when we are having multiple features inside the application, we need to create multiple lb's for all the features; and it is going to cost us very highly --- hence it is not a suggested one]
+
+Ingress-Controller:
+1. search in google for ingress controller in kubernetes (https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
+2. if we are going to scroll down, we can see a lot of additional controllers [the highly used controller used in real-time are nginx ingress controller]
+3. scroll down - and you can see the code under github (https://github.com/nginxinc/kubernetes-ingress)
+4. use this document for installtion (https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/)
+5. create a new directory (mkdir nginxcontroller) - go inside the directory (cd nginxcontroller)
+6. before going on with the ingress installation, we need to download the image from the docker (https://hub.docker.com/r/nginx/nginx-ingress) - if getting error like docker is not installed then install docker by giving command (apt install docker.io -y)
+7. then pull the image from the remote hub to local (docker pull nginx/nginx-ingress)
+8. clone the kubernetes nginx-ingress (git clone https://github.com/nginxinc/kubernetes-ingress/) and go inside the deployment path (cd kubernetes-ingress/deployments) - checkout to the latest version as per mentioned on the doc (git checkout v2.1.1)
+9. we need to create the following contents
+
+ namespace and serviceaccount (kubectl apply -f common/ns-and-sa.yaml)
+ cluster role and cluster role binding for the service account (kubectl apply -f rbac/rbac.yaml)
+ App Protect role and role binding (kubectl apply -f rbac/ap-rbac.yaml)
+ App Protect Dos role and role binding (kubectl apply -f rbac/apdos-rbac.yaml)
+ secret with a TLS certificate and a key for the default server in NGINX (kubectl apply -f common/default-server-secret.yaml)
+ config map (kubectl apply -f common/nginx-config.yaml)
+ IngressClass resource (kubectl apply -f common/ingress-class.yaml)
+ custom resource definitions for VirtualServer (kubectl apply -f common/crds/k8s.nginx.org_virtualservers.yaml)
+				 VirtualServerRoute (kubectl apply -f common/crds/k8s.nginx.org_virtualserverroutes.yaml)
+				 TransportServer (kubectl apply -f common/crds/k8s.nginx.org_transportservers.yaml)
+				 Policy (kubectl apply -f common/crds/k8s.nginx.org_policies.yaml)
+ 				 GlobalConfiguration (kubectl apply -f common/crds/k8s.nginx.org_globalconfigurations.yaml)
+ 		App Protect      APPolicy (kubectl apply -f common/crds/appprotect.f5.com_aplogconfs.yaml)
+				 APLogConf (kubectl apply -f common/crds/appprotect.f5.com_appolicies.yaml)
+				 APUserSig (kubectl apply -f common/crds/appprotect.f5.com_apusersigs.yaml)
+     		App protect Dos  APDosPolicy (kubectl apply -f common/crds/appprotectdos.f5.com_apdoslogconfs.yaml)
+				 APDosLogConf (kubectl apply -f common/crds/appprotectdos.f5.com_apdospolicy.yaml)
+				 DosProtectedResource (kubectl apply -f common/crds/appprotectdos.f5.com_dosprotectedresources.yaml)
+
+ run the Arbitrator by using a Deployment and Service (kubectl apply -f deployment/appprotect-dos-arb.yaml) 
+						      (kubectl apply -f service/appprotect-dos-arb-svc.yaml)
+ run the ingress controller (kubectl apply -f deployment/nginx-ingress.yaml)
+ run the daemon-set (kubectl apply -f daemon-set/nginx-ingress.yaml)
+ check the status (kubectl get pods --namespace=nginx-ingress)
+ Create a Service for the Ingress Controller Pods using NodePort (kubectl create -f service/nodeport.yaml)
+ Use a LoadBalancer service (kubectl apply -f service/loadbalancer-aws-elb.yaml)
+
+Links for Mini-Project using Ingress-Controller:
+1. https://www.fosstechnix.com/install-nginx-ingress-controller-kubernetes-kops/
+2. https://medium.com/@lucky.cs025/kubertnetes-ingress-controller-setup-using-kop-nginx-ingress-6c3da8dde3f8
+3. https://www.bogotobogo.com/DevOps/Docker/Docker-Kubernetes-kops-on-AWS-Ingress.php
+
+
+ Deletion:
+1. ASG - Master & Nodes
+2. Load Balancer
+3. Target Groups
+4. Launch Templates
+5. EC2-Client Server
+6. IAM - User & Roles
+7. S3 - Bucket & Objects
+8. VPC
+9. Volume
+10. DHCP Option Sets

@@ -1,0 +1,215 @@
+Kubernetes Part 4:
+
+What If my entire Machine goes down?
+What Replicaset is going to do and Daemonset is going to do?
+Replicaset needs to always equalize the Desired number with Current number; hence this is going to create a new pod using scheduler; wherever the space is available, it maybe machine number 2 or 3 (Reference Diagram from Replicaset, Daemonset Part 3 - Picture representation) but, Daemonset is working on Node level, hence there is no requirement to create one because currently there are only 2 machines running and both has the daemonset on its own. 
+
+1. Go to autoscaling (node machine) and update the Desired value, min value and max value = 2 - update
+2. master machine and update the value = 1 - update.
+3. Kubernetes namespace = we are splitting our kubernetes cluster virtually == [For ex: If we are having 4 different env into our project; like dev, test, stage & prod; we can maintain different namespaces for each and every env accordingly]
+[***FYI: The highly used kubectl commands are == "kubectl apply", "kubectl get", "kubectl describe", "kubectl delete"]
+kubectl apply = helps us to create anything <pod, namespace, deployment> using .yaml
+kubectl get = in order to know about the content <pod, namespace, deployment>
+kubectl describe = detailed view about the specific object <pod, namespace, deployment>
+kubctl delete = in order to delete the object <pod, namespace, deployment>
+[official reference doc link: https://kubernetes.io/docs/reference/
+			      https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands	
+			      https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+			      https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/]
+4. open the machine via putty - switch to root user (sudo su -)
+5. to know about namespace (kubectl get namespace) [by default, we have 4 namespaces; default, kube-node-lease; kube-public; kube-system]
+ex: kubectl get pods -n kube-system
+- kube-system = will show us all the components in the kubernetes architecture; [***mostly, we will not touch this namespace because, this one is dedicated for k8's]
+- default = if we are trying to deploy a pod without providing the specific location, then it will automatically deploy on this default namespace
+- kube-public = whatever the pod you are going to deploy under this namespace, that is going to be "intranet"
+
+Task:
+How does "kube-node-lease" going to work?
+
+6. in order to create a namespace, give command (kubectl create ns a-square) [ns= namespace]
+7. to view this, give command (kubectl get ns) [here, we will be able to view our namespace]
+8. now, we are going to create pod [use this "https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/" link for creating anything, as they have sample .yaml file for everything - now select Pod v1 core - click example - copy paste the .yaml script on a file [create a file "vi pod.txt" == we are pasting this as .txt format in order to avoid the syntax error] - then rename it to .yaml file (mv pod.txt pod.yaml)
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: akshiv-2k22
+spec:
+  containers:
+  - name: apache
+    image: httpd
+    ports:
+      - containerPort: 80
+
+[api = application programming interface version, this will be setup by k8's; kind = what exactly we are going to create; metadata = we are providing a name for the pod; specification = we are creating the pod with the container, the name of the container, image which we are going to use for this container; [the image will be fetched from docker hub]]
+
+9. we are going to apply this, use command (kubectl apply -f pod.yaml) [-f = file]
+10. give command (kubectl get pods) [will give the list of pods]
+11. as I have not mentioned the specific namespace, this will comes under (default) namespace; to confirm give command (kubectl get pods -n default), now we can see the pod comes under the default ns.
+12. in order to bring the pod under a specific namespace
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  namespace: a-square
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+      - containerPort: 80
+
+[for time being, I am editing my same .yaml script]
+13. now apply this pod (kubectl apply -f pod.yaml) - to check whether it's running in our namespace, give command (kubectl get pods -n a-square)
+14. replicaset = the purpose is to maintain/manage our pod; now go to the reference document once again and copy the ReplicaSet v1 apps - example - copy the .yaml script - open another .yaml file (vi replicaset.txt) paste it, then rename it to yaml file (mv replicaset.txt replicaset.yaml)
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  # Unique key of the ReplicaSet instance
+  name: replicaset-example
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      # Run the nginx image
+      - name: nginx
+        image: nginx:1.14
+
+15. now, we need to apply this (kubectl apply -f replicaset.yaml) - to view this give (kubectl get pods), as we can see there are 2 pods created already with the same copy.
+16. now, let me delete one pod manually [ex: kubectl delete pod [pod name]] - once, after the deleted confirmation; now check (kubectl get pods), we will be able to see another new pod got created; because [desired value = current value], the age of the new pod will be the proof
+17. if you want to delete this, you cannot delete by one by one pod, as this is keep on going to create the new one; [just like ASG] - to delete this (kubectl get rs) [rs = replicaset], then delete the replicaset by giving this command (kubectl delete rs [replicaset name]) - now give command (kubectl get pods), as you can see this got terminated.
+18. now, we are going to see deployments - go to the same reference document - Deployment v1 apps - example - copy and paste it (vi deployment.txt) - then rename it to (mv deployment.txt deployment.yaml) [the advantage of using deployment is, replicaset will come by default; 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Unique key of the Deployment instance
+  name: deployment-example
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        # Apply this label to pods and default
+        # the Deployment label selector to this value
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        # Run this image
+        image: nginx:1.14
+
+19. next, we need to apply this file (kubectl apply -f deployment.yaml) - then check for the pods (kubectl get pods) [where we can see the deployment pod got created with the replicas we used]
+20. by giving command (kubectl get deployment), we can see the overall values of deployment.
+21. let me try to make some error, to know more about deployment; I am trying to change the image name now
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Unique key of the Deployment instance
+  name: deployment-example
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        # Apply this label to pods and default
+        # the Deployment label selector to this value
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        # Run this image
+        image: akshiv
+
+22. apply this (kubectl apply -f deployment.yaml) - give command (kubectl get pods) [to get the pods informations] - as you can see the new pod which we created is actually throwing an error stating that the image was an error one, but still it doesn't distured the older one; until your new deployment got into "running" state, the older pod will be working - this is the best about deployment.yaml file.
+23. how to troubleshoot this error pod? - give command (kubectl describe pod [pod name]) - this will give us the clear logs about the issue.
+24. let us try giving another image that is available on the hub, edit the yaml file
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Unique key of the Deployment instance
+  name: deployment-example
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        # Apply this label to pods and default
+        # the Deployment label selector to this value
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        # Run this image
+        image: httpd
+
+25. here I am going to use (httpd) - now apply this (kubectl apply -f deployment.yaml) - check the pods (kubectl get pods) [we can clearly see that the older pods are getting terminated, as the new one started to be working; and this is running]
+26. now, I need to know under which node this pods got deployed?, to know about that, use this command (kubectl get pods -o wide), here it will show you the node dns where it got deployed.
+27. to go inside the pod, give command (kubectl exec -it [pod name] -- /bin/bash) - as we can see, we are inside the pod now - in order to come out give (exit)
+28. on which scenario, we are having daemonset? in order to collect logs and analysis - hence we are using daemonset here - whenever we are creating a daemonset, this is going to automatically deploy on every node; even in future if you are going to create a new node, this will get deployed automatically without any manual intervention - open a file (vi daemonset.txt) - rename it to (mv daemonset.txt daemonset.yaml)
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  # Unique key of the DaemonSet instance
+  name: mynode-exporter
+  labels:
+    app: mynode-exporter
+spec:
+  selector:
+    matchLabels:
+      app: mynode-exporter
+  template:
+    metadata:
+      labels:
+        app: mynode-exporter
+    spec:
+      containers:
+      # This container is run once on each Node in the cluster
+      - name: mynode-exporter
+        image: prom/node-exporter:v0.18.1
+        ports:
+          - containerPort: 9100
+            hostPort: 9100
+            protocol: TCP
+
+29. now, apply this file (kubectl apply -f daemonset.yaml) - now check this by giving (kubectl get daemonset) [even though we haven't specified any value here, this one got deployed on everywhere, this is how daemonset works]
+
+[***make sure to change to "0" on autoscaling in order to avoid charges]
+
+Additional Commands:
+For deleting the namespace = kubectl delete namespace [namespace name]
+
+Task:
+Under which situation, we need to delete the namespace forcefully, what is the command for that?
+what is the different between pod and deployment? concept wise.
+
+
+
+
+
+

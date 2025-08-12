@@ -1,0 +1,94 @@
+Kubernetes Part 5:
+
+Services:
+---------
+ > In Kubernetes, Pods are temporary — they can die, restart, or be recreated.
+ > When Pods restart, their IP addresses change.
+➔ This makes it very hard for apps to talk to each other reliably.
+
+✅ A Service is a stable, permanent IP address (and a DNS name) that stays the same even if Pods change.
+✅ A Service connects the users (or other apps) to your Pods safely.
+✅ Service acts like a bridge or a fixed doorway to your application.
+
+what is replica pods?
+	when it is serving either same feature of the applications/same services then we can call them as replica pods.
+
+Types of Kubernetes Services (with Simple Explanation):
+-------------------------------------------------------
+Type: ClusterIP
+Simple Meaning: Internal access only (inside the cluster)
+Real-world use: Backend services like databases.
+
+Type: NodePort
+Simple Meaning: Expose app on a port of each Node (VM/server).
+Real-world use: Testing apps externally.
+
+Type: LoadBalancer
+Simple Meaning: Expose app externally using cloud provider load balancer (AWS ELB, GCP, Azure).
+Real-world use: Production apps in cloud.
+
+Type: ExternalName
+Simple Meaning: Map a service to an external DNS name.
+Real-world use: Connect Kubernetes app to external services like databases.
+
+Type: Headless Service
+Simple Meaning: No stable IP — returns pod IPs directly.
+Real-world use: Needed for Stateful apps (like Cassandra, MySQL clusters).
+
+Different types of K8's services:
+1. NodePort === This is going to route the services on Node level, the external traffic will be come via kube-proxy through this NodePort only.
+2. ClusterIP ==== Internal inside the Node
+3. Load Balancer === Helps to manage better according to the traffic using multiple ways, this is also receiving traffic from external only.
+4. Ingress === (Highly used one, real time)
+
+==========================================================================================================
+
+Configmap:
+
+Developer is going to build the EAR file === this includes WAR + JAR file + Cfg files
+EAR = Enterprise Application aRchive
+WAR = holds information related to look and feel related to application (Web Application Archive)
+JAR = Business logic informations (Java ARchive)
+
+After kubernetes
+EAR + Cfg files
+
+CFG files = properties, database related informations like ports, connectivity, schema, xml files etc.,
+
+In real-time, if we are going to the config files attached to the EAR files, then we need to unbundle this all the time, as we are going to have multiple env's., and the config file cannot be same for everything.
+
+we can manage our config files internally and externally; 
+internal = if we are going to have config files inside the ear files
+external = we are going to have config files outside the ear files.
+
+The drawback of keeping this internally, as we are going to maintain different config files according to the env's; this is going to increase the size of the ear file; and this delays the deployment
+
+But, in kubernetes we can maintain this externally, hence by doing like this we can maintain the ear files, and this fasten our deployments. We have configmap in kubernetes to maintain this config files externally; this configmap is going to manage the configration files according to the environments. 
+
+============================================================================================================
+
+Secretmap:
+
+The word itself said that it is going to hold secret information's like password credentials. [For ex: an application is go the access from the DB, there are going to be multiple DB's and multiple set of credentials used for this; all those cannot be openly saved somewhere, hence we are going to use this secretmap in order to hold these kinds of secret informations]
+
+=============================================================================================================
+
+Volumes:
+
+Every container is going to take the volume/storage virtually according to their application specifications; In general we are not actually bringing volume inside the container, instead we are mentioning the specific volume path from where the volumes will be used [for ex: /var/google], majorly we are using the volumes for collecting the logs, as every container is going to be having an application and everything has it's own set of logs, in order to store all this logs we are using the volume paths. 
+
+Difference between Non-Persistent Volume & Persistent Volume:
+NPV will be allocated via path - when the pod got crashed, it is going to create a new one but volume cannot be attached.
+PV will be allocated via separate volume space; this is connected with PVC [persistent volume claim] directly with the container, if incase the pod is going to get crashed then by using the PVC the volume will get attached accordingly.
+
+==============================================================================================================
+
+Task:
+What is Kubernetes Discovery will be doing?
+
+
+
+
+
+
+
