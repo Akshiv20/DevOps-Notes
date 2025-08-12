@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  # Unique key of the DaemonSet instance
+  name: mynode-exporter
+  labels:
+    app: mynode-exporter
+spec:
+  selector:
+    matchLabels:
+      app: mynode-exporter
+  template:
+    metadata:
+      labels:
+        app: mynode-exporter
+    spec:
+      containers:
+      # This container is run once on each Node in the cluster
+      - name: mynode-exporter
+        image: prom/node-exporter:v0.18.1
+        ports:
+          - containerPort: 9100
+            hostPort: 9100
+            protocol: TCP
