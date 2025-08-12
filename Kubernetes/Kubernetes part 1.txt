@@ -1,0 +1,201 @@
+Kubernetes Part 1:
+
+Orchestration tool
+
+Kubernetes is running on top of Docker
+
+What is Docker? Why Docker?
+	Docker is a Brand, containerization is a methodology; same like AWS is a brand, cloud computing is a technology.	
+	Docker is a containerizaiton tool, this use OS-level virtualization to deliver software in packages called containers. Containers are isolated from one another and bundle their own software, libraries and configuration files; they can communicate with each other through well-defined channels.
+	Docker enables developers to easily pack, ship, and run any application as a lightweight, portable, self-sufficient container, which can run virtually anywhere. Docker containers are easy to deploy in a cloud.
+
+What is the difference between containerizartion and orchestration?
+	In simple words, If we are using one container at a time that is containerization; where orchestation means we are using set of containers and used via master slave setup model then that is called orchestration.
+
+Why the requirement for k8's increased?
+	As companies are trying to move their applications into containers using micro-services option the need got increased.
+
+What is different types of applications?
+static
+dynamic == this dynamic is divided into 2 == monolithic & micro-services
+
+What is difference between monolithic and micro-services?
+Mono = single
+Micro = multiple
+
+Monolithic: During earlier days, applications are very simple and the features are comparitively where it is easy to manage the entire application on a single place. When we are going to bring all the functionalities and it's services into a single bundle, then this is called Monolithic applciations
+
+Microservices: But, Recent days applications are not like that, there are a lot features available on a single applications and it is not as easy to manage everything on a single place, as the space of the application took huge space.
+	When we are using a huge application on a single place, then deployment is going to consume more time, as there are chances for errors. When an application is light-weighted then the deployment is going to perform soon and managing the application is easier compared to other.
+
+There are advantages and disadvantages for both the Monolithic and Micro-services.
+
+Advantages of Monolithic:
+simple Development
+simple Testing
+simple Deployment
+simple scale-up
+
+Disadvantages:
+No Flexibility
+No Reliability
+Speed while Development will be less
+Hard to create complex apps
+continous deployment
+more downtime
+
+vice versa for micro-services.
+
+{***
+Ideology for Project:
+1. Search for same apps like swiggy in abroad companies
+2. Search for apps like uber or ola
+
+Tell the interviewer that you are creating softwares for those kinds of applications using micro-services}
+
+Why Kubernetes?
+	This is a software tool to run Dockerized applications in the cluster of Nodes. Easy to manage the environment of the Enterprise application. In other words, we call this as Orchestrational Engine as well., this takes care about the stability of the application, in order to bring up the functional units automatically.
+
+History of K8's:
+Kubernetes was originally designed by Google in the year of 2014, and now it is taken care by CNCF (Cloud Native Computing Foundation). This one is written in Golang (Google Language)
+
+Whenever you are going to use K8's make sure you know about the latest version of it. As k8's is one of the tool that regularly update.
+
+Pre-requisites for k8's:
+1. Basic structure about yaml/json
+2. concepts about API and RestAPI
+3. Knowledge about Enterprise application - EAR
+4. Understanding about Architectural work flow.
+
+K8's Architecture:
+What is the difference between 2-tier architecture & 3-tier architecture?
+2-tier architecture:
+webserver (or) appserver ==> Database
+
+3-tier architecture:
+webserver (and) appserver ==> Database
+
+webserver ==> static content (read-only application) [ex: hdfc homepage]
+appserver ==> dynamic content [ex: hdfc login page]
+
+Components:
+Master Node:
+1. API server - This acts like front-end for the entire architecture communication.
+2. controller manager - It controls the number of pod replicas and creation [complete pod management], this will be connected only to the API server.
+3. scheduler - This schedules the pod activities like creation, deletion, deployment etc.,
+4. etcd (distributed key=value database) - This stores all the details about the cluster.
+
+Worker Node:
+1. kubelet - this is the connecting/managing component from master to worker
+2. kubeproxy - All the internet request for the applications will come via this only. This plays vital role for user to application connectivity.
+3. POD - Grouped containers, functional unit inside this architecture
+4. containers.
+
+kubectl:
+- it is a tool used to communicate with the cluster
+- it's connected with the APIserver
+- ~/ .kube/config file contains the cluster information and shares to kubectl
+- kubectl command format,
+   kubectl <operation_command> <Type_command> <Name_command>
+- Operations:- Get, Create, Delete, Describe, Logs, etc
+- Type:- Pods, Deployments, Jobs, Namespace, etc
+- Name:- Seach-pod, Cart-Deployment, Ui-Service, mail-jobs, etc
+
+eg:- kubectl get pod test-pod
+
+Sample:
+Different Types of Installation:
+1. Kubeadm
+2. KOPS
+3. kubespray
+4. Minikube - Minikube creates a single node cluster inside a VM or Cloud Instance. It is good for beginners to learn Kubernetes since you don’t have to create a master and worker node to create a cluster and we can practice basic Kubernetes functions and can also install the Kubernetes dashboard on it.
+
+Minikube installation on AWS Instance
+1. Create a server - ubuntu 22.04 OS - t2.medium.
+
+2. open terminal, update your system
+sudo apt update
+sudo apt upgrade -y
+
+Once all the update is over, reboot the system
+sudo reboot
+
+3. Install Docker
+
+sudo apt-get install  ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo systemctl status docker
+
+4. Add user to docker group
+
+sudo groupadd docker
+sudo usermod -aG docker $USER && newgrp docker
+
+sudo systemctl enable docker
+sudo systemctl status docker
+
+5. Download and Install Minikube Binary
+
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+minikube version
+
+6. Install Kubectl
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+7. Set the executable permission
+
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+8. Verify the kubectl version
+
+kubectl version -o yaml
+
+9. Start Minikube Cluster
+
+minikube start --driver=docker
+minikube status
+
+10. Interact with Minikube Cluster
+
+kubectl get nodes
+kubectl cluster-info
+
+11. Nginx deployment
+
+kubectl create deployment nginx-web --image=nginx
+kubectl expose deployment nginx-web --type NodePort --port=80
+kubectl get deployment,pod,svc
+
+12. Managing Minikube Addons
+
+minikube addons list
+minikube addons enable dashboard
+minikube addons enable ingress
+minikube addons list (to confirm all the addons)
+
+13. Managing Minikube Cluster
+
+minikube stop
+minikube start
+
+14. Delete Cluster
+minikube delete
+
+
+
+
+
+
+
+	
